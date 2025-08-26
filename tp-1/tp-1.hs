@@ -75,15 +75,17 @@ empiezaConM _ = False
 
     -- c) Dado dos días de semana, indica si el primero viene después que el segundo. Analizar la calidad de la solución respecto de la cantidad de casos analizados
 vieneDespues::DiaDeSemana->DiaDeSemana->Bool
-vieneDespues Lunes Domingo = True
-vieneDespues Martes Lunes = True
-vieneDespues Miercoles Martes = True
-vieneDespues Jueves Miercoles = True
-vieneDespues Viernes Jueves = True
-vieneDespues Sabado Viernes = True
-vieneDespues Domingo Sabado = True
-vieneDespues _ _ = False
+vieneDespues d1 d2 = cardinalDeDia d1 > cardinalDeDia d2
 -- Precondición: no tiene
+
+cardinalDeDia::DiaDeSemana->Int
+cardinalDeDia Lunes = 1
+cardinalDeDia Martes = 2
+cardinalDeDia Miercoles = 3
+cardinalDeDia Jueves = 4
+cardinalDeDia Viernes = 5
+cardinalDeDia Sabado = 6
+cardinalDeDia Domingo = 7
 
     -- d)
 estaEnElMedio::DiaDeSemana->Bool
@@ -95,7 +97,7 @@ estaEnElMedio _ = False
     -- a)  Dado un booleano, si es True devuelve False, y si es False devuelve True. En Haskell ya está de nida como not.
 negar::Bool->Bool
 negar True = False
-nrgar False = True
+negar False = True
 -- Precondición: no tiene
 
     -- b) Dados dos booleanos, si el primero es True y el segundo es False, devuelve False, sino devuelve True. Esta función NO debe realizar doble pattern matching. Nota: no viene implementada en Haskell.
@@ -237,11 +239,11 @@ swap (x,y) = (y,x)
 -- Precondición: no tiene
 
 -- 6_
-   -- 1. De na las siguientes funciones polimór cas utilizando pattern matching sobre listas (no utilizar las funciones que ya vienen con Haskell)
+   -- 1. Defina las siguientes funciones polimórficas utilizando pattern matching sobre listas (no utilizar las funciones que ya vienen con Haskell)
    -- 2. Dada una lista de elementos, si es vacía devuelve True, sino devuelve False. Definida en Haskell como null.
 estaVacia::[a]->Bool
 estaVacia [] = True
-estaVacia [a] = False
+estaVacia (_:_) = False
 -- Precondición: no tiene
 
   -- 3. Dada una lista devuelve su primer elemento. Definida en Haskell como head. Nota: tener en cuenta que el constructor de listas es :
