@@ -97,18 +97,17 @@ estaEnElMedio _ = False
     -- a)  Dado un booleano, si es True devuelve False, y si es False devuelve True. En Haskell ya está de nida como not.
 negar::Bool->Bool
 negar True = False
-negar False = True
+negar _ = True
 -- Precondición: no tiene
 
     -- b) Dados dos booleanos, si el primero es True y el segundo es False, devuelve False, sino devuelve True. Esta función NO debe realizar doble pattern matching. Nota: no viene implementada en Haskell.
 implica::Bool->Bool->Bool
-implica True False = False
-implica _ _ = True
+implica p q = negar p || q
 -- Precondición: no tiene
 
     -- c)  Dados dos booleanos si ambos son True devuelve True, sino devuelve False. Esta función NO debe realizar doble pattern matching. En Haskell ya está de nida como \&\&
 yTambien::Bool->Bool->Bool
-yTambien True True = True
+yTambien True x = x
 yTambien _ _ = False
 -- Precondición: no tiene
 
