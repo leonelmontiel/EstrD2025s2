@@ -102,7 +102,7 @@ negar _ = True
 
     -- b) Dados dos booleanos, si el primero es True y el segundo es False, devuelve False, sino devuelve True. Esta función NO debe realizar doble pattern matching. Nota: no viene implementada en Haskell.
 implica::Bool->Bool->Bool
-implica p q = negar p || q
+implica p q = oBien (negar p) q
 -- Precondición: no tiene
 
     -- c)  Dados dos booleanos si ambos son True devuelve True, sino devuelve False. Esta función NO debe realizar doble pattern matching. En Haskell ya está de nida como \&\&
@@ -113,7 +113,7 @@ yTambien _ _ = False
 
     -- d) Dados dos booleanos si alguno de ellos es True devuelve True, sino devuelve False. Esta función NO debe realizar doble pattern matching. En Haskell ya está de nida como ||.
 oBien::Bool->Bool->Bool
-oBien False False = False
+oBien False x = x
 oBien _ _ = True
 -- Precondición: no tiene
 
