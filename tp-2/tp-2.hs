@@ -78,3 +78,37 @@ lasDeLongitudMayorA n (x:xs) = agregarSiLongitudEsMayorA n x ++ lasDeLongitudMay
 agregarSiLongitudEsMayorA::Int->[a]->[[a]]
 agregarSiLongitudEsMayorA n xs = if n < longitud xs then [xs] else []
 -- Precondicion: no tiene
+
+  -- 11) Dados una lista y un elemento, devuelve una lista con ese elemento agregado al nal de la lista.
+agregarAlFinal::[a]->a->[a]
+agregarAlFinal [] x = [x]
+agregarAlFinal (y:ys) x = y : agregarAlFinal ys x
+-- Precondicion: no tiene
+
+  -- 12) Dadas dos listas devuelve la lista con todos los elementos de la primera lista y todos los elementos de la segunda a continuación. De nida en Haskell como (++).
+agregar::[a]->[a]->[a]
+agregar [] ys = ys
+agregar (x:xs) ys = x : agregar xs ys
+-- Precondicion: no tiene
+
+  -- 13) Dada una lista devuelve la lista con los mismos elementos de atrás para adelante. Definida en Haskell como reverse.
+reversa::[a]->[a]
+reversa [] = []
+reversa (x:xs) = agregarAlFinal (reversa xs) x
+-- Precondicion: no tiene
+
+  -- 14) Dadas dos listas de enteros, devuelve una lista donde el elemento en la posición n es el máximo entre el elemento n de la primera lista y de la segunda lista, teniendo en cuenta que las listas no necesariamente tienen la misma longitud.
+zipMaximos::[Int]->[Int]->[Int]
+zipMaximos xs [] = xs
+zipMaximos [] ys = ys
+zipMaximos (x:xs) (y:ys) = maxDelPar (x,y) : zipMaximos xs ys
+
+maxDelPar::(Int, Int)->Int
+maxDelPar (n,n') = if n>n' then n else n'
+-- del tp1
+
+  -- 15) Dada una lista devuelve el mínimo
+elMinimo::Ord a=>[a]->a
+elMinimo [] = error "La lista no puede estar vacía"
+elMinimo [x] = x
+elMinimo (x:xs) = min x (elMinimo xs)
