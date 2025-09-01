@@ -112,3 +112,14 @@ elMinimo::Ord a=>[a]->a
 elMinimo [] = error "La lista no puede estar vacía"
 elMinimo [x] = x
 elMinimo (x:xs) = min x (elMinimo xs)
+
+-- 2. De na las siguientes funciones utilizando recursión sobre números enteros, salvo que se indique lo contrario:
+
+  -- 1) Dado un número n se devuelve la multiplicación de este número y todos sus anteriores hasta llegar a 0. Si n es 0 devuelve 1. La función es parcial si n es negativo.
+factorial::Int->Int
+factorial 0 = 1
+factorial n = if n>0
+  then n * factorial (n-1)
+  else error "el número no debe ser negativo"
+-- Precondicion: n no debe ser negativo
+-- El tipo Int en Haskell tiene un rango limitado (normalmente de -2³¹ a 2³¹-1 en sistemas de 32 bits). El factorial de 56 es un número enorme, por eso lo envuelve en 0.
