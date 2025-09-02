@@ -197,9 +197,7 @@ elMasViejo (x:xs) = laQueEsMayor x (elMasViejo xs)
 
     -- del tp1 f) Dadas dos personas devuelve a la persona que sea mayor.
 laQueEsMayor::Persona->Persona->Persona
-laQueEsMayor p1 p2 = if (esMayorQueLaOtra p1 p2)
-                     then p1
-					           else p2
+laQueEsMayor p1 p2 = if (esMayorQueLaOtra p1 p2) then p1 else p2
 -- Precondición: no tiene
 
     -- del tp1 e) Dadas dos personas indica si la primera es mayor que la segunda.
@@ -233,9 +231,7 @@ cantPokemonDe t (ConsEntrenador n (x:xs)) = unoSiEsIgual t (tipoDe x) + cantPoke
 
 -- del tp1
 unoSiEsIgual::TipoDePokemon->TipoDePokemon->Int
-unoSiEsIgual t1 t2 = if (esDeIgualTipo t1 t2)
-                     then 1
-					 else 0
+unoSiEsIgual t1 t2 = if (esDeIgualTipo t1 t2) then 1 else 0
 -- Precondición: no tiene
 
 -- del tp1					 
@@ -254,10 +250,17 @@ tipoDe (ConsPokemon t _) = t
     -- c) Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo pertenecientes al primer entrenador, que le ganarían a todos los Pokemon del segundo entrenador.
 cuantosDeTipo_De_LeGananATodosLosDe_ :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador _ []) (ConsEntrenador _ _) = 0
-cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 (p:ps)) (ConsEntrenador n2 enemigos) =
-  if esDeIgualTipo (tipoDe p) t && leGanaATodos p enemigos
-    then 1 + cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 ps) (ConsEntrenador n2 enemigos)
-    else cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 ps) (ConsEntrenador n2 enemigos)
+cuantosDeTipo_De_LeGananATodosLosDe_ t e1 e2 = sumarTipoDeLeGanaATodosLosDe t e1 e2
+-- Precondicion: no tiene
+
+sumarTipoDeLeGanaATodosLosDe::TipoDePokemon->Entrenador->Entrenador->Int
+sumarTipoDeLeGanaATodosLosDe t (ConsEntrenador n1 (p:ps)) (ConsEntrenador n2 enemigos) = if esDeIgualTipoYLeGanaATodos t p enemigos
+  then 1 + cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 ps) (ConsEntrenador n2 enemigos)
+  else cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 ps) (ConsEntrenador n2 enemigos)
+-- Precondicion: no tiene
+
+esDeIgualTipoYLeGanaATodos::TipoDePokemon->Pokemon->[Pokemon]->Bool
+esDeIgualTipoYLeGanaATodos t p enemigos = esDeIgualTipo (tipoDe p) t && leGanaATodos p enemigos
 -- Precondicion: no tiene
 
 leGanaATodos :: Pokemon -> [Pokemon] -> Bool
@@ -277,3 +280,50 @@ tipoDeUnoSuperaADos Fuego Planta = True
 tipoDeUnoSuperaADos Planta Agua = True
 tipoDeUnoSuperaADos _ _ = False
 -- Precondición: no tiene
+
+  {-
+  3_ El tipo de dato Rol representa los roles (desarollo o management) de empleados IT dentro de una empresa de software, junto al proyecto en el que se encuentran. Así, una empresa es una lista de personas con diferente rol. La definición es la siguiente
+  -}
+
+data Seniority = Junior | SemiSenior | Senior deriving Show
+data Proyecto = ConsProyecto String deriving Show
+data Rol = Developer Seniority Proyecto | Management Seniority Proyecto deriving Show
+data Empresa = ConsEmpresa [Rol] deriving Show
+
+dev = Developer Junior (ConsProyecto "Link")
+dev1 = Developer Senior (ConsProyecto "Capa Java")
+man = Management Senior (ConsProyecto "Link")
+emp = ConsEmpresa [dev, dev1, man]
+emp1 = ConsEmpresa []
+
+    -- a) Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
+proyectos :: Empresa -> [Proyecto]
+proyectos (ConsEmpresa roles) = sinRepetidos (proyectosDe roles)
+
+sinRepetidos :: [Proyecto] -> [Proyecto]
+sinRepetidos [] = []
+sinRepetidos (p:ps) = agregarSiNoExiste p (sinRepetidos ps)
+
+agregarSiNoExiste :: Proyecto -> [Proyecto] -> [Proyecto]
+agregarSiNoExiste p ps =
+  if perteneceProyecto p ps
+    then ps
+    else p : ps
+
+perteneceProyecto :: Proyecto -> [Proyecto] -> Bool
+perteneceProyecto _ [] = False
+perteneceProyecto p (x:xs) =
+  if nombreDeProyectoDe p == nombreDeProyectoDe x
+    then True
+    else perteneceProyecto p xs
+
+proyectosDe::[Rol]->[Proyecto]
+proyectosDe [] = []
+proyectosDe (x:xs) = proyectoDe x : proyectosDe xs
+
+proyectoDe::Rol->Proyecto
+proyectoDe (Developer _ x) = x
+proyectoDe (Management _ x) = x
+
+nombreDeProyectoDe :: Proyecto -> String
+nombreDeProyectoDe (ConsProyecto nombre) = nombre
