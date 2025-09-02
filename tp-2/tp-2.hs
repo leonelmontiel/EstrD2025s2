@@ -1,4 +1,4 @@
--- 1.
+-- 1. Recursión sobre listas
   -- 1) Dada una lista de enteros devuelve la suma de todos sus elementos
 sumatoria :: [Int]->Int
 sumatoria [] = 0
@@ -113,7 +113,7 @@ elMinimo [] = error "La lista no puede estar vacía"
 elMinimo [x] = x
 elMinimo (x:xs) = min x (elMinimo xs)
 
--- 2. De na las siguientes funciones utilizando recursión sobre números enteros, salvo que se indique lo contrario:
+-- 2. Recursión sobre números - Defina las siguientes funciones utilizando recursión sobre números enteros, salvo que se indique lo contrario:
 
   -- 1) Dado un número n se devuelve la multiplicación de este número y todos sus anteriores hasta llegar a 0. Si n es 0 devuelve 1. La función es parcial si n es negativo.
 factorial::Int->Int
@@ -123,3 +123,131 @@ factorial n = if n>0
   else error "el número no debe ser negativo"
 -- Precondicion: n no debe ser negativo
 -- El tipo Int en Haskell tiene un rango limitado (normalmente de -2³¹ a 2³¹-1 en sistemas de 32 bits). El factorial de 56 es un número enorme, por eso lo envuelve en 0.
+
+  -- 2) Dado un número n devuelve una lista cuyos elementos sean los números comprendidos entre n y 1 (incluidos). Si el número es inferior a 1, devuelve la lista vacía.
+cuentaRegresiva::Int->[Int]
+cuentaRegresiva n = if n<1
+  then []
+  else n : cuentaRegresiva (n-1)
+-- Precondicion: no tiene
+
+  -- 3) Dado un número n y un elemento e devuelve una lista en la que el elemento e repite n veces.
+repetir::Int->a->[a]
+repetir 0 _ = []
+repetir n e = if n>0
+  then e : repetir (n-1) e
+  else error "el número de veces a repetir no debe ser negativo"
+-- Precondicion: n no debe ser negativo
+
+  -- 4) Dados un número n y una lista xs, devuelve una lista con los n primeros elementos de xs. Si la lista es vacía, devuelve una lista vacía.
+losPrimeros :: Int -> [a] -> [a]
+losPrimeros n _ | n < 0 = error "La cantidad de elementos no debe ser negativa"
+losPrimeros 0 _ = []
+losPrimeros _ [] = []
+losPrimeros n (x:xs) = x : losPrimeros (n - 1) xs
+-- Precondicion: n no debe ser negativo
+
+  -- 5) Dados un número n y una lista xs, devuelve una lista sin los primeros n elementos de lista recibida. Si n es cero, devuelve la lista completa.
+sinLosPrimeros :: Int -> [a] -> [a]
+sinLosPrimeros n xs
+  | n <= 0    = xs
+sinLosPrimeros _ []     = []
+sinLosPrimeros n (_:xs) = sinLosPrimeros (n - 1) xs
+-- Precondicion: no tiene
+
+-- 3.Registros
+  -- 1_ Definir el tipo de dato Persona, como un nombre y la edad de la persona. Realizar las siguientes funciones:
+data Persona = P String Int deriving Show
+yo = P "Leonel" 29
+ella = P "Ariana" 22
+el = P "Jorge" 62
+    -- a) Dados una edad y una lista de personas devuelve a las personas mayores a esa edad
+mayoresA::Int->[Persona]->[Persona]
+mayoresA _ [] = []
+mayoresA n (x:xs) = if n>0
+  then agregarPersonaSiCumpleEdad n x ++ mayoresA n xs
+  else error "La edad a buscar debe ser mayor a 0"
+-- Precondicion: no tiene
+
+agregarPersonaSiCumpleEdad::Int->Persona->[Persona]
+agregarPersonaSiCumpleEdad n p = if edad p > n then [p] else []
+-- Precondicion: no tiene
+
+-- del tp1  
+edad::Persona->Int
+edad (P _ e) = e
+-- Precondición: no tiene
+
+    -- b)  Dada una lista de personas devuelve el promedio de edad entre esas personas. Precondición: la lista al menos posee una persona
+promedioEdad::[Persona]->Int
+promedioEdad [] = error "La lista no puede estar vacía"
+promedioEdad xs = div (sumaDeEdades xs) (longitud xs)
+
+sumaDeEdades::[Persona]->Int
+sumaDeEdades [] = 0
+sumaDeEdades (x:xs) = edad x + (sumaDeEdades xs)
+-- Precondicion: no tiene
+
+    -- c) Dada una lista de personas devuelve la persona más vieja de la lista. 
+elMasViejo :: [Persona] -> Persona
+elMasViejo []     = error "La lista no puede estar vacía"
+elMasViejo [x]    = x
+elMasViejo (x:xs) = laQueEsMayor x (elMasViejo xs)
+-- Precondición: la lista al menos posee una persona.
+
+    -- del tp1 f) Dadas dos personas devuelve a la persona que sea mayor.
+laQueEsMayor::Persona->Persona->Persona
+laQueEsMayor p1 p2 = if (esMayorQueLaOtra p1 p2)
+                     then p1
+					           else p2
+-- Precondición: no tiene
+
+    -- del tp1 e) Dadas dos personas indica si la primera es mayor que la segunda.
+esMayorQueLaOtra::Persona->Persona->Bool
+esMayorQueLaOtra p1 p2 = (edad p1) >= (edad p2)
+-- Precondición: no tiene
+
+  -- 2_ Modificaremos la representación de Entreador y Pokemon de la práctica anterior de la siguiente manera:
+data TipoDePokemon = Agua | Fuego | Planta
+data Pokemon = ConsPokemon TipoDePokemon Int
+data Entrenador = ConsEntrenador String [Pokemon]
+
+pk1 = ConsPokemon Agua 92
+pk2 = ConsPokemon Fuego 98
+pk3 = ConsPokemon Planta 55
+
+e1 = ConsEntrenador "Ash" [pk1]
+e2 = ConsEntrenador "Misty" [pk1, pk2, pk3, pk1]
+e3 = ConsEntrenador "Brook" []
+
+    -- a) Devuelve la cantidad de Pokémon que posee el entrenador.
+cantPokemon::Entrenador->Int
+cantPokemon (ConsEntrenador _ xs) = longitud xs
+-- Precondicion: no tiene
+
+    -- b)  Devuelve la cantidad de Pokémon de determinado tipo que posee el entrenador.
+cantPokemonDe::TipoDePokemon->Entrenador->Int
+cantPokemonDe t (ConsEntrenador _ []) = 0
+cantPokemonDe t (ConsEntrenador n (x:xs)) = unoSiEsIgual t (tipoDe x) + cantPokemonDe t (ConsEntrenador n xs)
+
+-- del tp1
+unoSiEsIgual::TipoDePokemon->TipoDePokemon->Int
+unoSiEsIgual t1 t2 = if (esDeIgualTipo t1 t2)
+                     then 1
+					 else 0
+-- Precondición: no tiene
+
+-- del tp1					 
+esDeIgualTipo::TipoDePokemon->TipoDePokemon->Bool
+esDeIgualTipo Agua Agua = True
+esDeIgualTipo Fuego Fuego = True
+esDeIgualTipo Planta Planta = True
+esDeIgualTipo _ _ = False
+-- Precondición: no tiene
+
+-- del tp1 pero modificado para que acepte el tipo ConsPokemon
+tipoDe::Pokemon->TipoDePokemon
+tipoDe (ConsPokemon t _) = t
+-- Precondición: no tiene
+
+    -- c) 
