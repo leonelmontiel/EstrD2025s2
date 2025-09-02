@@ -293,22 +293,26 @@ data Empresa = ConsEmpresa [Rol] deriving Show
 dev = Developer Junior (ConsProyecto "Link")
 dev1 = Developer Senior (ConsProyecto "Capa Java")
 man = Management Senior (ConsProyecto "Link")
-emp = ConsEmpresa [dev, dev1, man]
+emp = ConsEmpresa [dev, dev1, man, dev1]
 emp1 = ConsEmpresa []
+emp2 = ConsEmpresa [dev1, man]
 
     -- a) Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
 proyectos :: Empresa -> [Proyecto]
-proyectos (ConsEmpresa roles) = sinRepetidos (proyectosDe roles)
+proyectos (ConsEmpresa roles) = proyectosSinRepetidos (proyectosDe roles)
+-- Precondicion: no tiene
 
-sinRepetidos :: [Proyecto] -> [Proyecto]
-sinRepetidos [] = []
-sinRepetidos (p:ps) = agregarSiNoExiste p (sinRepetidos ps)
+proyectosSinRepetidos :: [Proyecto] -> [Proyecto]
+proyectosSinRepetidos [] = []
+proyectosSinRepetidos (p:ps) = agregarSiNoExiste p (proyectosSinRepetidos ps)
+-- Precondicion: no tiene
 
 agregarSiNoExiste :: Proyecto -> [Proyecto] -> [Proyecto]
 agregarSiNoExiste p ps =
   if perteneceProyecto p ps
     then ps
     else p : ps
+-- Precondicion: no tiene
 
 perteneceProyecto :: Proyecto -> [Proyecto] -> Bool
 perteneceProyecto _ [] = False
@@ -316,14 +320,75 @@ perteneceProyecto p (x:xs) =
   if nombreDeProyectoDe p == nombreDeProyectoDe x
     then True
     else perteneceProyecto p xs
+-- Precondicion: no tiene
 
 proyectosDe::[Rol]->[Proyecto]
 proyectosDe [] = []
 proyectosDe (x:xs) = proyectoDe x : proyectosDe xs
+-- Precondicion: no tiene
 
 proyectoDe::Rol->Proyecto
 proyectoDe (Developer _ x) = x
 proyectoDe (Management _ x) = x
+-- Precondicion: no tiene
 
 nombreDeProyectoDe :: Proyecto -> String
 nombreDeProyectoDe (ConsProyecto nombre) = nombre
+-- Precondicion: no tiene
+
+    -- c) Dada una empresa indica la cantidad de desarrolladores senior que posee, que pertecen además a los proyectos dados por parámetro.
+losDevSenior::Empresa->[Proyecto]->Int
+losDevSenior e ps = contarCoincidencias (losSeniorsDe e) ps
+-- Precondicion: no tiene
+
+contarCoincidencias :: [Rol] -> [Proyecto] -> Int
+contarCoincidencias _ [] = 0
+contarCoincidencias r (p:ps) = sumarUnoSiCumpleProyecto r p + contarCoincidencias r ps
+-- Precondicion: no tiene
+
+losSeniorsDe::Empresa->[Rol]
+losSeniorsDe (ConsEmpresa []) = []
+losSeniorsDe (ConsEmpresa (x:xs)) = agregarSiEsSenior x ++ losSeniorsDe (ConsEmpresa xs)
+-- Precondicion: no tiene
+
+agregarSiEsSenior::Rol->[Rol]
+agregarSiEsSenior (Developer s p) = 
+  if esSenior s 
+    then [(Developer s p)] 
+    else []
+agregarSiEsSenior (Management _ _) = [] -- En la consigna pide Desarrolladores (Developer), no Management
+-- Precondicion: no tiene
+
+esSenior::Seniority->Bool
+esSenior Senior = True
+esSenior _ = False
+-- Precondicion: no tiene
+
+sumarUnoSiCumpleProyecto::[Rol]->Proyecto->Int
+sumarUnoSiCumpleProyecto [] _ = 0
+sumarUnoSiCumpleProyecto (x:xs) p = 
+  if nombreDeProyectoDe p == nombreDeProyectoDe (proyectoDe x) 
+    then 1 + sumarUnoSiCumpleProyecto xs p 
+    else sumarUnoSiCumpleProyecto xs p
+-- Precondicion: no tiene
+
+    -- d)  Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
+cantQueTrabajanEn::[Proyecto]->Empresa->Int
+cantQueTrabajanEn [] _ = 0
+cantQueTrabajanEn (p:ps) (ConsEmpresa rs) = sumarUnoSiCumpleProyecto rs p + cantQueTrabajanEn ps (ConsEmpresa rs)
+-- Precondicion: no tiene
+
+    -- e) Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su cantidad de personas involucradas.
+asignadosPorProyecto::Empresa->[(Proyecto, Int)]
+asignadosPorProyecto e = agruparSegunProyecto e
+-- Precondicion: no tiene
+
+agruparSegunProyecto::Empresa->[(Proyecto, Int)]
+agruparSegunProyecto (ConsEmpresa xs) = agregarEmpleadoPorProyecto (proyectosSinRepetidos (proyectosDe xs)) xs
+-- Precondicion: no tiene
+
+agregarEmpleadoPorProyecto::[Proyecto]->[Rol]->[(Proyecto, Int)]
+agregarEmpleadoPorProyecto [] _ = []
+agregarEmpleadoPorProyecto (p:ps) [] = (p, 0) : agregarEmpleadoPorProyecto ps []
+agregarEmpleadoPorProyecto (p:ps) rs = (p, sumarUnoSiCumpleProyecto rs p) : agregarEmpleadoPorProyecto ps rs
+-- Precondicion: no tiene
