@@ -227,8 +227,9 @@ cantPokemon (ConsEntrenador _ xs) = longitud xs
 
     -- b)  Devuelve la cantidad de Pokémon de determinado tipo que posee el entrenador.
 cantPokemonDe::TipoDePokemon->Entrenador->Int
-cantPokemonDe t (ConsEntrenador _ []) = 0
+cantPokemonDe _ (ConsEntrenador _ []) = 0
 cantPokemonDe t (ConsEntrenador n (x:xs)) = unoSiEsIgual t (tipoDe x) + cantPokemonDe t (ConsEntrenador n xs)
+-- Precondicion: no tiene
 
 -- del tp1
 unoSiEsIgual::TipoDePokemon->TipoDePokemon->Int
@@ -250,4 +251,29 @@ tipoDe::Pokemon->TipoDePokemon
 tipoDe (ConsPokemon t _) = t
 -- Precondición: no tiene
 
-    -- c) 
+    -- c) Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo pertenecientes al primer entrenador, que le ganarían a todos los Pokemon del segundo entrenador.
+cuantosDeTipo_De_LeGananATodosLosDe_ :: TipoDePokemon -> Entrenador -> Entrenador -> Int
+cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador _ []) (ConsEntrenador _ _) = 0
+cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 (p:ps)) (ConsEntrenador n2 enemigos) =
+  if esDeIgualTipo (tipoDe p) t && leGanaATodos p enemigos
+    then 1 + cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 ps) (ConsEntrenador n2 enemigos)
+    else cuantosDeTipo_De_LeGananATodosLosDe_ t (ConsEntrenador n1 ps) (ConsEntrenador n2 enemigos)
+-- Precondicion: no tiene
+
+leGanaATodos :: Pokemon -> [Pokemon] -> Bool
+leGanaATodos _ [] = True
+leGanaATodos p (x:xs) = superaA p x && leGanaATodos p xs
+-- Precondicion: no tiene
+
+    -- del tp1  a) Dados dos Pokémon indica si el primero, en base al tipo, es superior al segundo. Agua supera a fuego, fuego a planta y planta a agua. Y cualquier otro caso es falso.
+superaA::Pokemon->Pokemon->Bool
+superaA pk1 pk2 = tipoDeUnoSuperaADos (tipoDe pk1) (tipoDe pk2)
+-- Precondición: no tiene
+
+-- del tp1 
+tipoDeUnoSuperaADos::TipoDePokemon->TipoDePokemon->Bool
+tipoDeUnoSuperaADos Agua Fuego = True
+tipoDeUnoSuperaADos Fuego Planta = True
+tipoDeUnoSuperaADos Planta Agua = True
+tipoDeUnoSuperaADos _ _ = False
+-- Precondición: no tiene
