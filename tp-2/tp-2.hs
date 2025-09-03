@@ -20,22 +20,14 @@ sucesores (n:ns) = n+1 : sucesores ns
   -- 4) Dada una lista de booleanos devuelve True si todos sus elementos son True.
 conjuncion :: [Bool]->Bool
 conjuncion [] = True
-conjuncion (x:xs) = yTambien x (conjuncion xs)
+conjuncion (x:xs) = x && conjuncion xs
 -- Precondicion: no tiene
-
-yTambien::Bool->Bool->Bool
-yTambien True x = x
-yTambien _ _ = False
 
   -- 5) Dada una lista de booleanos devuelve True si alguno de sus elementos es True.
 disyuncion :: [Bool]->Bool
 disyuncion [] = False
-disyuncion (x:xs) = oBien x (disyuncion xs)
+disyuncion (x:xs) = x || disyuncion xs
 -- Precondicion: no tiene
-
-oBien::Bool->Bool->Bool
-oBien False x = x
-oBien _ _ = True
 
   -- 6) Dada una lista de listas, devuelve una única lista con todos sus elementos.
 aplanar :: [[a]]->[a]
@@ -281,6 +273,22 @@ tipoDeUnoSuperaADos Planta Agua = True
 tipoDeUnoSuperaADos _ _ = False
 -- Precondición: no tiene
 
+    -- d) Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
+esMaestroPokemon :: Entrenador -> Bool
+esMaestroPokemon (ConsEntrenador _ pks) =
+  tieneTipo Agua pks &&
+  tieneTipo Fuego pks &&
+  tieneTipo Planta pks
+-- Precondicion: no tiene
+
+tieneTipo :: TipoDePokemon -> [Pokemon] -> Bool
+tieneTipo _ [] = False
+tieneTipo t (p:ps) =
+  if esDeIgualTipo t (tipoDe p)
+    then True
+    else tieneTipo t ps
+-- Precondicion: no tiene
+
   {-
   3_ El tipo de dato Rol representa los roles (desarollo o management) de empleados IT dentro de una empresa de software, junto al proyecto en el que se encuentran. Así, una empresa es una lista de personas con diferente rol. La definición es la siguiente
   -}
@@ -337,26 +345,18 @@ nombreDeProyectoDe (ConsProyecto nombre) = nombre
 -- Precondicion: no tiene
 
     -- c) Dada una empresa indica la cantidad de desarrolladores senior que posee, que pertecen además a los proyectos dados por parámetro.
-losDevSenior::Empresa->[Proyecto]->Int
-losDevSenior e ps = contarCoincidencias (losSeniorsDe e) ps
+losDevSenior :: Empresa -> [Proyecto] -> Int
+losDevSenior (ConsEmpresa []) _ = 0
+losDevSenior (ConsEmpresa (r:rs)) ps =
+  if esDevSeniorEnProyectos r ps
+    then 1 + losDevSenior (ConsEmpresa rs) ps
+    else losDevSenior (ConsEmpresa rs) ps
 -- Precondicion: no tiene
 
-contarCoincidencias :: [Rol] -> [Proyecto] -> Int
-contarCoincidencias _ [] = 0
-contarCoincidencias r (p:ps) = sumarUnoSiCumpleProyecto r p + contarCoincidencias r ps
--- Precondicion: no tiene
-
-losSeniorsDe::Empresa->[Rol]
-losSeniorsDe (ConsEmpresa []) = []
-losSeniorsDe (ConsEmpresa (x:xs)) = agregarSiEsSenior x ++ losSeniorsDe (ConsEmpresa xs)
--- Precondicion: no tiene
-
-agregarSiEsSenior::Rol->[Rol]
-agregarSiEsSenior (Developer s p) = 
-  if esSenior s 
-    then [(Developer s p)] 
-    else []
-agregarSiEsSenior (Management _ _) = [] -- En la consigna pide Desarrolladores (Developer), no Management
+esDevSeniorEnProyectos :: Rol -> [Proyecto] -> Bool
+esDevSeniorEnProyectos (Developer s p) ps =
+  esSenior s && perteneceProyecto p ps
+esDevSeniorEnProyectos (Management _ _) _ = False
 -- Precondicion: no tiene
 
 esSenior::Seniority->Bool
@@ -379,16 +379,19 @@ cantQueTrabajanEn (p:ps) (ConsEmpresa rs) = sumarUnoSiCumpleProyecto rs p + cant
 -- Precondicion: no tiene
 
     -- e) Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su cantidad de personas involucradas.
-asignadosPorProyecto::Empresa->[(Proyecto, Int)]
-asignadosPorProyecto e = agruparSegunProyecto e
+asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto (ConsEmpresa rs) = acumularProyectoCantidad rs []
 -- Precondicion: no tiene
 
-agruparSegunProyecto::Empresa->[(Proyecto, Int)]
-agruparSegunProyecto (ConsEmpresa xs) = agregarEmpleadoPorProyecto (proyectosSinRepetidos (proyectosDe xs)) xs
+acumularProyectoCantidad :: [Rol] -> [(Proyecto, Int)] -> [(Proyecto, Int)]
+acumularProyectoCantidad [] acumulado = acumulado
+acumularProyectoCantidad (r:rs) acumulado = acumularProyectoCantidad rs (sumarOAgregar (proyectoDe r) acumulado)
 -- Precondicion: no tiene
 
-agregarEmpleadoPorProyecto::[Proyecto]->[Rol]->[(Proyecto, Int)]
-agregarEmpleadoPorProyecto [] _ = []
-agregarEmpleadoPorProyecto (p:ps) [] = (p, 0) : agregarEmpleadoPorProyecto ps []
-agregarEmpleadoPorProyecto (p:ps) rs = (p, sumarUnoSiCumpleProyecto rs p) : agregarEmpleadoPorProyecto ps rs
+sumarOAgregar :: Proyecto -> [(Proyecto, Int)] -> [(Proyecto, Int)]
+sumarOAgregar p [] = [(p, 1)]
+sumarOAgregar p ((x,n):xs) =
+  if nombreDeProyectoDe p == nombreDeProyectoDe x
+    then (x, n + 1) : xs
+    else (x, n) : sumarOAgregar p xs
 -- Precondicion: no tiene
