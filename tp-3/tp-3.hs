@@ -97,10 +97,10 @@ hayTesoroEn n c = n == pasosHastaTesoro c
 
   -- 4)  Indica si hay al menos n tesoros en el camino
 alMenosNTesoros::Int->Camino->Bool
-alMenosNTesoros n c = if n>0 
-                      then sumarTodosLosTesoros c >= n
-                      else error "el número a evaluar deber ser mayor que 0" 
--- Precondicion: el número a evaluar deber ser mayor que 0
+alMenosNTesoros n c = if esMenorOIgualQueCero n 
+                      then error "el número a evaluar deber ser mayor o igual que 0" 
+                      else sumarTodosLosTesoros c >= n
+-- Precondicion: el número a evaluar deber ser mayor o igual que 0
 
 sumarTodosLosTesoros::Camino->Int
 sumarTodosLosTesoros (Fin) = 0
@@ -112,3 +112,44 @@ sumarTesoros::[Objeto]->Int
 sumarTesoros [] = 0
 sumarTesoros (x:xs) = unoSi (esTesoro x) + sumarTesoros xs
 -- Precondicion: no tiene
+
+  -- 5) Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están incluidos tanto 3 como 5 en el resultado.
+cantTesorosEntre :: Int -> Int -> Camino -> Int
+cantTesorosEntre 0 0 c = sumarTodosLosTesoros c 
+cantTesorosEntre n m c = contarTesorosEnRango (m - n + 1) (quitarPrimerosNPasos n c)
+-- Precondicion: Debe existir al menos un camino siguiente
+
+contarTesorosEnRango :: Int -> Camino -> Int
+contarTesorosEnRango 0 _ = 0
+contarTesorosEnRango _ Fin = 0
+contarTesorosEnRango pasos (Nada c) = contarTesorosEnRango (pasos - 1) c
+contarTesorosEnRango pasos (Cofre obs c) = sumarTesoros obs + contarTesorosEnRango (pasos - 1) c
+-- Precondicion: no tiene
+
+quitarPrimerosNPasos::Int->Camino->Camino
+quitarPrimerosNPasos n c = if esMenorOIgualQueCero n
+                   then c
+                   else quitarPrimerosNPasos (n-1) (quitarPrimerPaso c)
+-- Precondicion: Debe existir al menos un camino siguiente
+
+quitarPrimerPaso::Camino->Camino
+quitarPrimerPaso Fin = error "Debe existir al menos un camino siguiente"
+quitarPrimerPaso (Nada c) = c
+quitarPrimerPaso (Cofre _ c) = c
+-- Precondicion: Debe existir al menos un camino siguiente
+
+{-  2. Tipos arbóreos
+ 2.1. Árboles binarios
+ Dada esta definición para árboles binarios -}
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
+
+arb0 = EmptyT
+arb1 = NodeT (1::Int) (EmptyT) (EmptyT)
+arb2 = NodeT (5::Int) arb1 arb0
+arb3 = NodeT (2::Int) arb2 arb1
+-- defina las siguientes funciones utilizando recursión estructural según corresponda:
+
+--  Dado un árbol binario de enteros devuelve la suma entre sus elementos.
+sumarT::Tree Int->Int
+sumarT EmptyT = 0
+sumarT (NodeT n t1 t2) = n + sumarT t1 + sumarT t2
