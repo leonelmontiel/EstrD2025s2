@@ -91,31 +91,33 @@ pasosHastaTesoro (Cofre obs c) = if tieneTesoro obs
                                  else 1 + pasosHastaTesoro c
 
   -- 3)  Indica si hay un tesoro en una cierta cantidad exacta de pasos. Por ejemplo, si el número de pasos es 5, indica si hay un tesoro en 5 pasos.
-hayTesoroEn::Int->Camino->Bool
-hayTesoroEn n c = n == pasosHastaTesoro c
+hayTesoroEn :: Int -> Camino -> Bool
+hayTesoroEn n Fin             = False
+hayTesoroEn n (Nada c)      = hayTesoroEn (n-1) c
+hayTesoroEn n (Cofre obj c) = if n == 0
+                              then tieneTesoro obj
+                              else hayTesoroEn (n-1) c
 -- Precondicion: tiene que haber al menos un tesoro.
 
   -- 4)  Indica si hay al menos n tesoros en el camino
 alMenosNTesoros::Int->Camino->Bool
-alMenosNTesoros n c = if esMenorOIgualQueCero n 
-                      then error "el número a evaluar deber ser mayor o igual que 0" 
-                      else sumarTodosLosTesoros c >= n
--- Precondicion: el número a evaluar deber ser mayor o igual que 0
+alMenosNTesoros n c = cantTesorosDelCamino c >= n
 
-sumarTodosLosTesoros::Camino->Int
-sumarTodosLosTesoros (Fin) = 0
-sumarTodosLosTesoros (Nada c) = sumarTodosLosTesoros c
-sumarTodosLosTesoros (Cofre obs c) = sumarTesoros obs + sumarTodosLosTesoros c
--- Precondicion: no tiene
+cantTesorosDelCamino :: Camino -> Int 
+cantTesorosDelCamino  c  = sumarTesoros (objetosDeCamino c)
 
 sumarTesoros::[Objeto]->Int
 sumarTesoros [] = 0
 sumarTesoros (x:xs) = unoSi (esTesoro x) + sumarTesoros xs
--- Precondicion: no tiene
+
+objetosDeCamino :: Camino -> [Objeto] 
+objetosDeCamino    (Cofre obs c) = obs ++ objetosDeCamino c 
+objetosDeCamino    (Nada c )     = objetosDeCamino c 
+objetosDeCamino    _               = []
 
   -- 5) Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están incluidos tanto 3 como 5 en el resultado.
 cantTesorosEntre :: Int -> Int -> Camino -> Int
-cantTesorosEntre 0 0 c = sumarTodosLosTesoros c 
+cantTesorosEntre 0 0 c = cantTesorosDelCamino c 
 cantTesorosEntre n m c = contarTesorosEnRango (m - n + 1) (quitarPrimerosNPasos n c)
 -- Precondicion: Debe existir al menos un camino siguiente
 
