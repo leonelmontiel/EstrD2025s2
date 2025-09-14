@@ -14,6 +14,9 @@ ing1 = [Salsa]
 ing2 = [Queso]++ing1
 ing3 = [Jamon]++ing2
 ing4 = [Aceitunas 8]++ing3
+
+pizzas0 = []
+allPizzas = [pizza0, pizza1, pizza2, pizza3, pizza4]
 --Definir las siguientes funciones:
 
   -- 1) Dada una pizza devuelve la cantidad de ingredientes
@@ -53,3 +56,89 @@ esSalsaOQueso Queso = True
 esSalsaOQueso _ = False
 
 -- Hacerlo comparando una lista con los ingredientes fijos, y otros con esos mismos ingredientes pero quitándolos si se encuetran en la primera lista
+
+  -- 5) Recorre cada ingrediente y si es aceitunas duplica su cantidad
+duplicarAceitunas::Pizza->Pizza
+duplicarAceitunas Prepizza = Prepizza
+duplicarAceitunas (Capa ing p) = Capa (duplicarAceitunasSiHay ing) p
+-- Precondicion: ninguna
+
+duplicarAceitunasSiHay::Ingrediente->Ingrediente
+duplicarAceitunasSiHay (Aceitunas n) = Aceitunas (n*2)
+duplicarAceitunasSiHay ing = ing
+-- Precondicion: ninguna
+
+  -- 6) Dada una lista de pizzas devuelve un par donde la primera componente es la cantidad de ingredientes de la pizza, y la respectiva pizza como segunda componente.
+cantCapasPorPizza::[Pizza]->[(Int, Pizza)]
+cantCapasPorPizza [] = []
+cantCapasPorPizza (p:ps) = (cantidadDeCapas p, p):cantCapasPorPizza ps
+-- Precondicion: ninguna
+
+{-
+ 2. Mapa de tesoros (con bifurcaciones)
+ Un mapa de tesoros es un árbol con bifurcaciones que terminan en cofres. Cada bifurcación y
+ cada cofre tiene un objeto, que puede ser chatarra o un tesoro.
+ -}
+data Dir = Izq | Der
+data Objeto = Tesoro | Chatarra deriving Show
+data Cofre = Cofre [Objeto] deriving Show
+data Mapa = Fin Cofre | Bifurcacion Cofre Mapa Mapa
+
+c0 = Cofre []
+c1 = Cofre [Chatarra]
+c2 = Cofre [Tesoro]
+c3 = Cofre [Chatarra, Tesoro]
+
+mapa0 = Fin c0
+mapa1 = Fin c1
+mapa2 = Fin c2
+mapa3 = Fin c3
+
+mapa4 = Bifurcacion c0 mapa0 mapa0
+mapa5 = Bifurcacion c0 mapa1 mapa1
+mapa6 = Bifurcacion c2 mapa0 mapa1
+mapa7 = Bifurcacion c1 mapa2 mapa3
+mapa8 = Bifurcacion c3 mapa7 mapa6
+--  Definir las siguientes operaciones:
+
+  -- 1) Indica si hay un tesoro en alguna parte del mapa.
+hayTesoro::Mapa->Bool
+hayTesoro (Fin c) = hayTesoroDentro c
+hayTesoro (Bifurcacion c m1 m2) = hayTesoroDentro c || hayTesoro m1 || hayTesoro m2
+--Precondicion: ninguna
+
+hayTesoroDentro::Cofre->Bool
+hayTesoroDentro (Cofre obs) = hayAlMenosUnTesoro obs
+--Precondicion: ninguna
+
+hayAlMenosUnTesoro::[Objeto]->Bool
+hayAlMenosUnTesoro [] = False
+hayAlMenosUnTesoro (ob:obs) = esTesoro ob || hayAlMenosUnTesoro obs
+--Precondicion: ninguna
+
+esTesoro::Objeto->Bool
+esTesoro Tesoro = True
+esTesoro _ = False
+--Precondicion: ninguna
+
+  -- 2) Indica si al final del camino hay un tesoro. Nota: el final de un camino se representa con una lista vacía de direcciones.
+hayTesoroEn::[Dir]->Mapa->Bool
+hayTesoroEn dirs m = hayTesoroSegunDirs dirs m
+-- Precondicion: ninguna
+
+cofreDe::Mapa->Cofre
+cofreDe (Fin c) = c
+cofreDe (Bifurcacion c _ _) = c
+-- Precondicion: ninguna
+
+mapaSegunDir::Dir->Mapa->Mapa
+mapaSegunDir _ (Fin _) = error "el mapa deve ser con bifurcación"
+mapaSegunDir Izq (Bifurcacion _ m1 _) = m1
+mapaSegunDir Der (Bifurcacion _ _ m2) = m2
+-- Precodicion: el mapa debe ser con Bifurcacion
+
+hayTesoroSegunDirs::[Dir]->Mapa->Bool
+hayTesoroSegunDirs [] m = hayTesoroDentro (cofreDe m)
+hayTesoroSegunDirs (d) (Fin _) = error "Las direcciones exceden el rango del mapa"
+hayTesoroSegunDirs (d:ds) m = hayTesoroEn ds (mapaSegunDir d m)
+-- Precondicion: cuando se evalúe un mapa Fin Cofre, no deben existir direcciones en la lista dada
