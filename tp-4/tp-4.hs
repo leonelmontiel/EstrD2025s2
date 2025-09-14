@@ -8,6 +8,7 @@ pizza1 = Capa Salsa (pizza0)
 pizza2 = Capa Queso (pizza1)
 pizza3 = Capa Jamon (pizza2)
 pizza4 = Capa (Aceitunas 8) (pizza3)
+pizza5 = Capa Salsa (Capa Queso Prepizza)
 
 ing0 = []
 ing1 = [Salsa]
@@ -45,17 +46,22 @@ esJamon _ = False
 -- Precondicion: ninguna
 
   -- 4) Dice si una pizza tiene solamente salsa y queso (o sea, no tiene de otros ingredientes. En particular, la prepizza, al no tener ningún ingrediente, debería dar verdadero.)
-tieneSoloSalsaYQueso::Pizza->Bool
+tieneSoloSalsaYQueso :: Pizza -> Bool
 tieneSoloSalsaYQueso Prepizza = True
-tieneSoloSalsaYQueso (Capa _ _) = False
-tieneSoloSalsaYQueso (Capa ing p) = esSalsaOQueso ing && tieneSoloSalsaYQueso p
+tieneSoloSalsaYQueso (Capa ing p) =
+    case ing of
+        Salsa -> tieneSoloSalsaYQuesoConFlags p True False
+        Queso -> tieneSoloSalsaYQuesoConFlags p False True
+        _     -> False
 
-esSalsaOQueso::Ingrediente->Bool
-esSalsaOQueso Salsa = True
-esSalsaOQueso Queso = True
-esSalsaOQueso _ = False
+tieneSoloSalsaYQuesoConFlags :: Pizza -> Bool -> Bool -> Bool
+tieneSoloSalsaYQuesoConFlags Prepizza haySalsa hayQueso = haySalsa && hayQueso
+tieneSoloSalsaYQuesoConFlags (Capa ing p) haySalsa hayQueso =
+    case ing of
+        Salsa -> tieneSoloSalsaYQuesoConFlags p True hayQueso
+        Queso -> tieneSoloSalsaYQuesoConFlags p haySalsa True
+        _     -> False
 
--- Hacerlo comparando una lista con los ingredientes fijos, y otros con esos mismos ingredientes pero quitándolos si se encuetran en la primera lista
 
   -- 5) Recorre cada ingrediente y si es aceitunas duplica su cantidad
 duplicarAceitunas::Pizza->Pizza
