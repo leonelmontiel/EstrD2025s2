@@ -85,7 +85,7 @@ cantCapasPorPizza (p:ps) = (cantidadDeCapas p, p):cantCapasPorPizza ps
  Un mapa de tesoros es un árbol con bifurcaciones que terminan en cofres. Cada bifurcación y
  cada cofre tiene un objeto, que puede ser chatarra o un tesoro.
  -}
-data Dir = Izq | Der
+data Dir = Izq | Der deriving Show
 data Objeto = Tesoro | Chatarra deriving Show
 data Cofre = Cofre [Objeto] deriving Show
 data Mapa = Fin Cofre | Bifurcacion Cofre Mapa Mapa
@@ -93,7 +93,7 @@ data Mapa = Fin Cofre | Bifurcacion Cofre Mapa Mapa
 c0 = Cofre []
 c1 = Cofre [Chatarra]
 c2 = Cofre [Tesoro]
-c3 = Cofre [Chatarra, Tesoro]
+c3 = Cofre [Tesoro, Chatarra, Tesoro]
 
 mapa0 = Fin c0
 mapa1 = Fin c1
@@ -105,6 +105,8 @@ mapa5 = Bifurcacion c0 mapa1 mapa1
 mapa6 = Bifurcacion c2 mapa0 mapa1
 mapa7 = Bifurcacion c1 mapa2 mapa3
 mapa8 = Bifurcacion c3 mapa7 mapa6
+mapa9 = Bifurcacion c3 mapa1 mapa8
+mapa10 = Bifurcacion c0 mapa1 mapa9
 --  Definir las siguientes operaciones:
 
   -- 1) Indica si hay un tesoro en alguna parte del mapa.
@@ -148,3 +150,39 @@ hayTesoroSegunDirs [] m = hayTesoroDentro (cofreDe m)
 hayTesoroSegunDirs (d) (Fin _) = error "Las direcciones exceden el rango del mapa"
 hayTesoroSegunDirs (d:ds) m = hayTesoroEn ds (mapaSegunDir d m)
 -- Precondicion: cuando se evalúe un mapa Fin Cofre, no deben existir direcciones en la lista dada
+
+  -- 3)  Indica el camino al tesoro. Precondición: existe un tesoro y es único.
+caminoAlTesoro::Mapa->[Dir]
+caminoAlTesoro (Fin c) = if hayTesoroDentro c 
+                         then []
+                         else error "No se encontró un tesoro, debería existir uno en el camino"
+caminoAlTesoro (Bifurcacion c m1 m2) = if hayTesoroDentro c 
+                                       then []
+                                       else agregarDirAlTesoro m1 m2
+agregarDirAlTesoro::Mapa->Mapa->[Dir]
+agregarDirAlTesoro m1 m2 = if hayTesoro m1
+                        then Izq : caminoAlTesoro m1
+                        else Der : caminoAlTesoro m2
+
+  -- 4)  Indica el camino de la rama más larga.
+caminoDeLaRamaMasLarga::Mapa->[Dir]
+caminoDeLaRamaMasLarga (Fin _) = []
+caminoDeLaRamaMasLarga (Bifurcacion _ m1 m2) =
+       let izq = Izq:caminoDeLaRamaMasLarga m1
+           der = Der:caminoDeLaRamaMasLarga m2
+       in if length izq >= length der
+          then izq
+          else der
+
+  -- 5) Devuelve los tesoros separados por nivel en el árbol.
+tesorosPorNivel::Mapa->[[Objeto]]
+tesorosPorNivel (Fin c) = [tesorosDe c]
+tesorosPorNivel (Bifurcacion c m1 m2) = tesorosDe c : (tesorosPorNivel m1 ++ tesorosPorNivel m2)
+
+tesorosDe::Cofre->[Objeto]
+tesorosDe (Cofre []) = []
+tesorosDe (Cofre (ob:obs)) = agregarSi ob (esTesoro ob) ++ tesorosDe (Cofre obs)
+
+agregarSi::Objeto->Bool->[Objeto]
+agregarSi x True = [x]
+agregarSi _ _ = []
