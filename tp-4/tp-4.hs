@@ -186,3 +186,13 @@ tesorosDe (Cofre (ob:obs)) = agregarSi ob (esTesoro ob) ++ tesorosDe (Cofre obs)
 agregarSi::Objeto->Bool->[Objeto]
 agregarSi x True = [x]
 agregarSi _ _ = []
+
+  -- 6) Devuelve todos lo caminos en el mapa.
+todosLosCaminos::Mapa->[[Dir]]
+todosLosCaminos (Fin _) = []
+todosLosCaminos (Bifurcacion _ m1 m2) =
+  agregarDirACada Izq (todosLosCaminos m1) ++ agregarDirACada Der (todosLosCaminos m2)
+
+agregarDirACada::Dir->[[Dir]]->[[Dir]]
+agregarDirACada d [] = [[d]]
+agregarDirACada d (ds:dss) = (d:ds) : agregarDirACada d dss
