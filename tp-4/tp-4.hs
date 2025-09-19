@@ -196,3 +196,60 @@ todosLosCaminos (Bifurcacion _ m1 m2) =
 agregarDirACada::Dir->[[Dir]]->[[Dir]]
 agregarDirACada d [] = [[d]]
 agregarDirACada d (ds:dss) = (d:ds) : agregarDirACada d dss
+
+{- 3. Nave Espacial
+ modelaremos una Nave como un tipo algebraico, el cual nos permite construir una nave espacial, dividida en sectores, a los cuales podemos asignar tripulantes y componentes. La representación es la siguiente:-}
+data Componente = LanzaTorpedos | Motor Int | Almacen [Barril]
+data Barril = Comida | Oxigeno | Torpedo | Combustible
+
+data Sector = S SectorId [Componente] [Tripulante]
+type SectorId = String
+type Tripulante = String
+
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
+data Nave = N (Tree Sector)
+
+s0 = S "0" [] []
+s1 = S "1" [LanzaTorpedos] []
+s2 = S "2" [Motor 5] []
+s3 = S "3" [Motor 18, Almacen [], Motor 2, LanzaTorpedos] []
+
+st0 = EmptyT
+st1 = NodeT s0 st0 st0
+st2 = NodeT s1 st0 st1
+st3 = NodeT s2 st1 st2
+st4 = NodeT s3 st2 st3
+
+nave0 = N st0
+nave1 = N st1
+nave2 = N st2
+nave3 = N st3
+nave4 = N st4
+-- Implementar las siguientes funciones utilizando recursión estructural:
+
+  -- 1) Devuelve todos los sectores de la nave.
+sectores::Nave->[SectorId]
+sectores (N sector) = idsDe sector
+
+idsDe::Tree Sector->[SectorId]
+idsDe EmptyT = []
+idsDe (NodeT s s1 s2) = idDe s : (idsDe s1 ++ idsDe s2)
+
+idDe::Sector->SectorId
+idDe (S id _ _) = id
+
+  -- 3)  Devuelve la suma de poder de propulsión de todos los motores de la nave. Nota: el poder de propulsión es el número que acompaña al constructor de motores.
+poderDePropulsion::Nave->Int
+poderDePropulsion (N sector) = cantDePoderDeMotores sector
+
+cantDePoderDeMotores::Tree Sector->Int
+cantDePoderDeMotores EmptyT = 0
+cantDePoderDeMotores (NodeT s s1 s2) = cantDePoderDe s + cantDePoderDeMotores s1 + cantDePoderDeMotores s2
+
+cantDePoderDe::Sector->Int
+cantDePoderDe (S _ [] _) = 0
+cantDePoderDe (S id (c:cs) ts) = poderDe c + cantDePoderDe (S id cs ts)
+
+poderDe::Componente->Int
+poderDe (Motor poder) = poder
+poderDe _ = 0
