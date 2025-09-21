@@ -344,3 +344,48 @@ sinTripulantesRepetidos (t:ts) =
   if elem t ts
   then sinTripulantesRepetidos ts
   else t : sinTripulantesRepetidos ts
+
+{- 4. Manada de lobos
+Modelaremos una manada de lobos, como un tipo Manada, que es un simple registro compuesto de una estructura llamada Lobo, que representa una jerarquía entre estos animales.
+Los diferentes casos de lobos que forman la jerarquía son los siguientes:
+- Los cazadores poseen nombre, una lista de especies de presas cazadas y 3 lobos a cargo.
+- Los exploradores poseen nombre, una lista de nombres de territorio explorados (nombres de bosques, ríos, etc.), y poseen 2 lobos a cargo.
+- Las crías poseen sólo un nombre y no poseen lobos a cargo.
+La estructura es la siguiente: -}
+type Presa = String-- nombre de presa
+type Territorio = String-- nombre de territorio
+type Nombre = String-- nombre de lobo
+data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cria Nombre deriving Show
+data Manada = M Lobo deriving Show
+{-
+  1) Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean crías. Resolver las siguientes funciones utilizando recursión estructural sobre la estructura que corresponda en cada caso:
+-}
+presas0 = ["Conejo", "Raton", "Venado"]
+presas1 = presas0++["Chinchilla", "Pájaro"]
+territorios0 = ["Pueblo"]
+territorios1 = ["Bosque", "Rio de La Plata", "Riachuelo"]
+
+cria0 = Cria "Tizi"
+cria1 = Cria "Tahiel"
+cria2 = Cria "Montiel"
+cria3 = Cria "Daniela"
+
+exp0 = Explorador "Elias" territorios0 cria0 cria1
+exp1 = Explorador "Ari" territorios1 cria1 cria2
+
+manada0 = M (Cazador "Leo" presas0 exp0 exp1 cria3)
+manada1 = M (Cazador "Messi" presas1 cria1 cria2 cria3)
+
+  -- 2)  dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
+buenaCaza::Manada->Bool
+buenaCaza (M lobo) = cantAlimentoMayorQueCantCrias lobo
+
+cantAlimentoMayorQueCantCrias::Lobo->Bool
+cantAlimentoMayorQueCantCrias (Cria _) = False
+cantAlimentoMayorQueCantCrias (Explorador _ _ l1 l2) = cantAlimentoMayorQueCantCrias l1 || cantAlimentoMayorQueCantCrias l2
+cantAlimentoMayorQueCantCrias (Cazador _ ps l1 l2 l3) = length ps > (cantCrias l1 + cantCrias l2 + cantCrias l3)
+
+cantCrias::Lobo->Int
+cantCrias (Cria _) = 1
+cantCrias (Explorador _ _ l1 l2) = cantCrias l1 + cantCrias l2
+cantCrias (Cazador _ _ l1 l2 l3) = cantCrias l1 + cantCrias l2 + cantCrias l3
