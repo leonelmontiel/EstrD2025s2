@@ -212,9 +212,9 @@ data Nave = N (Tree Sector) deriving Show
 cs1 = [LanzaTorpedos, Motor 7]
 
 s0 = S "0" [] []
-s1 = S "1" [LanzaTorpedos, Almacen []] ["Leo"]
-s2 = S "2" [Motor 5, Almacen [Torpedo, Comida]] ["Elias", "Montiel"]
-s3 = S "3" [Motor 18, Almacen [Comida, Oxigeno], Motor 2, LanzaTorpedos] ["Leo"]
+s1 = S "1" [LanzaTorpedos, Almacen []] []
+s2 = S "2" [Motor 5, Almacen [Torpedo, Comida]] []
+s3 = S "3" [Motor 18, Almacen [Comida, Oxigeno], Motor 2, LanzaTorpedos] []
 
 st0 = EmptyT
 st1 = NodeT s0 st0 st0
@@ -308,39 +308,3 @@ agregarTripulante t (S id cs ts) ids =
   then S id cs (t:ts)
   else S id cs ts
 
-  -- 6) Devuelve los sectores en donde aparece un tripulante dado
-sectoresAsignados::Tripulante->Nave->[SectorId]
-sectoresAsignados t (N sector) = sinSectorIdRepetidos (sectoresDelTripulante t sector)
-
-sectoresDelTripulante::Tripulante->Tree Sector->[SectorId]
-sectoresDelTripulante _ EmptyT = []
-sectoresDelTripulante t (NodeT s s1 s2) = 
-  let idsAsignados = (sectoresDelTripulante t s1 ++ sectoresDelTripulante t s2)
-  in if elem t (tripulantesDe s)
-    then  idDe s : idsAsignados
-    else idsAsignados
-
-tripulantesDe::Sector->[Tripulante]
-tripulantesDe (S _ _ ts) = ts
-
-sinSectorIdRepetidos::[SectorId]->[SectorId]
-sinSectorIdRepetidos [] = []
-sinSectorIdRepetidos (x:xs) =
-  if elem x xs
-  then sinSectorIdRepetidos xs
-  else x : sinSectorIdRepetidos xs
-
-  -- 7) Devuelve la lista de tripulantes, sin elementos repetidos.
-tripulantes::Nave->[Tripulante]
-tripulantes (N sectores) = sinTripulantesRepetidos (tripulantesDeTodosLos sectores)
-
-tripulantesDeTodosLos::Tree Sector->[Tripulante]
-tripulantesDeTodosLos EmptyT = []
-tripulantesDeTodosLos (NodeT s s1 s2) = tripulantesDe s ++ tripulantesDeTodosLos s1 ++ tripulantesDeTodosLos s2
-
-sinTripulantesRepetidos::[Tripulante]->[Tripulante]
-sinTripulantesRepetidos [] = []
-sinTripulantesRepetidos (t:ts) =
-  if elem t ts
-  then sinTripulantesRepetidos ts
-  else t : sinTripulantesRepetidos ts
