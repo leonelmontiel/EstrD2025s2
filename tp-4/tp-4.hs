@@ -419,8 +419,8 @@ losQueExploraron::Territorio->Manada->[Nombre]
 losQueExploraron t (M lobos) = sinNombresRepetidos (nombresDeLosQueExploraron t lobos)
 
 nombresDeLosQueExploraron::Territorio->Lobo->[Nombre]
-nombresDeLosQueExploraron t (Explorador nom ts t1 t2) = agregarNombreSiExploro t ts nom ++ nombresDeLosQueExploraron t t1 ++ nombresDeLosQueExploraron t t2
-nombresDeLosQueExploraron t (Cazador _ _ t1 t2 t3) = nombresDeLosQueExploraron t t1 ++ nombresDeLosQueExploraron t t2 ++ nombresDeLosQueExploraron t t3
+nombresDeLosQueExploraron t (Explorador nom ts l1 l2) = agregarNombreSiExploro t ts nom ++ nombresDeLosQueExploraron t l1 ++ nombresDeLosQueExploraron t l2
+nombresDeLosQueExploraron t (Cazador _ _ l1 l2 l3) = nombresDeLosQueExploraron t l1 ++ nombresDeLosQueExploraron t l2 ++ nombresDeLosQueExploraron t l3
 nombresDeLosQueExploraron _ (Cria _) = []
 
 agregarNombreSiExploro::Territorio->[Territorio]->Nombre->[Nombre]
@@ -434,3 +434,34 @@ sinNombresRepetidos [] = []
 sinNombresRepetidos (x:xs) = if elem x xs
   then xs
   else x : sinNombresRepetidos xs
+
+  -- 5) dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron dicho territorio. Los territorios no deben repetirse.
+exploradoresPorTerritorio :: Manada-> [(Territorio, [Nombre])]
+exploradoresPorTerritorio (M lobos) = agruparTerritorios (paresExploradores lobos)
+
+paresExploradores::Lobo->[(Territorio, Nombre)]
+paresExploradores (Cria _) = []
+paresExploradores (Cazador _ _ l1 l2 l3) = paresExploradores l1 ++ paresExploradores l2 ++ paresExploradores l3
+paresExploradores (Explorador nom ts l1 l2) = agregarNombrePorTerritorio nom ts ++ paresExploradores l1 ++ paresExploradores l2
+
+agregarNombrePorTerritorio::Nombre->[Territorio]->[(Territorio, Nombre)]
+agregarNombrePorTerritorio _ [] = []
+agregarNombrePorTerritorio nom (t:ts) = (t, nom) : agregarNombrePorTerritorio nom ts
+
+agruparTerritorios::[(Territorio, Nombre)]->[(Territorio, [Nombre])]
+agruparTerritorios [] = []
+agruparTerritorios ((t,nom):tns) = insertarTuplaTN t nom (agruparTerritorios tns)
+
+insertarNombreSiNoEsta :: Nombre -> [Nombre] -> Territorio -> [(Territorio,[Nombre])] -> [(Territorio,[Nombre])]
+insertarNombreSiNoEsta nom noms t tns =
+  if elem nom noms
+     then (t, noms) : tns
+     else (t, nom:noms) : tns
+
+-- Inserta (Territorio,Nombre) en la lista
+insertarTuplaTN :: Territorio -> Nombre -> [(Territorio,[Nombre])] -> [(Territorio,[Nombre])]
+insertarTuplaTN t nom [] = [(t, [nom])]
+insertarTuplaTN t nom ((t', noms):tnss) =
+  if t == t'
+    then insertarNombreSiNoEsta nom noms t' tnss
+    else (t', noms) : insertarTuplaTN t nom tnss
