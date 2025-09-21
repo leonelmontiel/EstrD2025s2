@@ -277,14 +277,14 @@ barrilesDe _ = []
 
   -- 4) Añade una lista de componentes a un sector de la nave.Nota: ese sector puede no existir, en cuyo caso no añade componentes.
 agregarASector :: [Componente] -> SectorId -> Nave -> Nave
-agregarASector cs id (N sector) = N (agregarEnArbol cs id sector)
+agregarASector cs id (N sector) = N (agregarEnSector cs id sector)
 
-agregarEnArbol :: [Componente] -> SectorId -> Tree Sector -> Tree Sector
-agregarEnArbol _ _ EmptyT = EmptyT
-agregarEnArbol cs id (NodeT s s1 s2) =
+agregarEnSector :: [Componente] -> SectorId -> Tree Sector -> Tree Sector
+agregarEnSector _ _ EmptyT = EmptyT
+agregarEnSector cs id (NodeT s s1 s2) =
   if tieneMismoId id s
   then NodeT (agregarComponentes cs s) s1 s2
-  else NodeT s (agregarEnArbol cs id s1) (agregarEnArbol cs id s2)
+  else NodeT s (agregarEnSector cs id s1) (agregarEnSector cs id s2)
 
 tieneMismoId::SectorId->Sector->Bool
 tieneMismoId id (S sectorId cs ts) = id == sectorId
@@ -292,3 +292,19 @@ tieneMismoId id (S sectorId cs ts) = id == sectorId
 agregarComponentes::[Componente]->Sector->Sector
 agregarComponentes [] sector = sector
 agregarComponentes cs (S id comps ts) = S id (cs++comps) ts
+
+  -- 5)  Incorpora un tripulante a una lista de sectores de la nave. Precondición: Todos los id de la lista existen en la nave.
+asignarTripulanteA::Tripulante->[SectorId]->Nave->Nave
+asignarTripulanteA t ids (N sector) = N (agregarTripulanteEnSectores t ids sector)
+
+agregarTripulanteEnSectores::Tripulante->[SectorId]->Tree Sector->Tree Sector
+agregarTripulanteEnSectores _ _ EmptyT = EmptyT
+agregarTripulanteEnSectores t ids (NodeT s s1 s2) = 
+  NodeT (agregarTripulante t s ids) (agregarTripulanteEnSectores t ids s1) (agregarTripulanteEnSectores t ids s2)
+
+agregarTripulante::Tripulante->Sector->[SectorId]->Sector
+agregarTripulante t (S id cs ts) ids =
+  if elem id ids
+  then S id cs (t:ts)
+  else S id cs ts
+
