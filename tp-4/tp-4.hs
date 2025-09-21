@@ -199,15 +199,17 @@ agregarDirACada d (ds:dss) = (d:ds) : agregarDirACada d dss
 
 {- 3. Nave Espacial
  modelaremos una Nave como un tipo algebraico, el cual nos permite construir una nave espacial, dividida en sectores, a los cuales podemos asignar tripulantes y componentes. La representación es la siguiente:-}
-data Componente = LanzaTorpedos | Motor Int | Almacen [Barril]
+data Componente = LanzaTorpedos | Motor Int | Almacen [Barril] deriving Show
 data Barril = Comida | Oxigeno | Torpedo | Combustible deriving Show
 
-data Sector = S SectorId [Componente] [Tripulante]
+data Sector = S SectorId [Componente] [Tripulante] deriving Show
 type SectorId = String
 type Tripulante = String
 
-data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
-data Nave = N (Tree Sector)
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
+data Nave = N (Tree Sector) deriving Show
+
+cs1 = [LanzaTorpedos, Motor 7]
 
 s0 = S "0" [] []
 s1 = S "1" [LanzaTorpedos, Almacen []] []
@@ -272,3 +274,21 @@ soloLosBarriles (c:cs) = barrilesDe c ++ soloLosBarriles cs
 barrilesDe::Componente->[Barril]
 barrilesDe (Almacen bs) = bs
 barrilesDe _ = []
+
+  -- 4) Añade una lista de componentes a un sector de la nave.Nota: ese sector puede no existir, en cuyo caso no añade componentes.
+agregarASector :: [Componente] -> SectorId -> Nave -> Nave
+agregarASector cs id (N sector) = N (agregarEnArbol cs id sector)
+
+agregarEnArbol :: [Componente] -> SectorId -> Tree Sector -> Tree Sector
+agregarEnArbol _ _ EmptyT = EmptyT
+agregarEnArbol cs id (NodeT s s1 s2) =
+  if tieneMismoId id s
+  then NodeT (agregarComponentes cs s) s1 s2
+  else NodeT s (agregarEnArbol cs id s1) (agregarEnArbol cs id s2)
+
+tieneMismoId::SectorId->Sector->Bool
+tieneMismoId id (S sectorId cs ts) = id == sectorId
+
+agregarComponentes::[Componente]->Sector->Sector
+agregarComponentes [] sector = sector
+agregarComponentes cs (S id comps ts) = S id (cs++comps) ts
