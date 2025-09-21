@@ -200,7 +200,7 @@ agregarDirACada d (ds:dss) = (d:ds) : agregarDirACada d dss
 {- 3. Nave Espacial
  modelaremos una Nave como un tipo algebraico, el cual nos permite construir una nave espacial, dividida en sectores, a los cuales podemos asignar tripulantes y componentes. La representación es la siguiente:-}
 data Componente = LanzaTorpedos | Motor Int | Almacen [Barril]
-data Barril = Comida | Oxigeno | Torpedo | Combustible
+data Barril = Comida | Oxigeno | Torpedo | Combustible deriving Show
 
 data Sector = S SectorId [Componente] [Tripulante]
 type SectorId = String
@@ -210,9 +210,9 @@ data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
 data Nave = N (Tree Sector)
 
 s0 = S "0" [] []
-s1 = S "1" [LanzaTorpedos] []
-s2 = S "2" [Motor 5] []
-s3 = S "3" [Motor 18, Almacen [], Motor 2, LanzaTorpedos] []
+s1 = S "1" [LanzaTorpedos, Almacen []] []
+s2 = S "2" [Motor 5, Almacen [Torpedo, Comida]] []
+s3 = S "3" [Motor 18, Almacen [Comida, Oxigeno], Motor 2, LanzaTorpedos] []
 
 st0 = EmptyT
 st1 = NodeT s0 st0 st0
@@ -253,3 +253,22 @@ cantDePoderDe (S id (c:cs) ts) = poderDe c + cantDePoderDe (S id cs ts)
 poderDe::Componente->Int
 poderDe (Motor poder) = poder
 poderDe _ = 0
+
+  -- 3) Devuelve todos los barriles de la nave.
+barriles::Nave->[Barril]
+barriles (N sector) = todosLosBarrilesDel sector
+
+todosLosBarrilesDel::Tree Sector->[Barril]
+todosLosBarrilesDel EmptyT = []
+todosLosBarrilesDel (NodeT s s1 s2) = barrilesDel s ++ todosLosBarrilesDel s1 ++ todosLosBarrilesDel s2
+
+barrilesDel::Sector->[Barril]
+barrilesDel (S _ cs _) = soloLosBarriles cs
+
+soloLosBarriles::[Componente]->[Barril]
+soloLosBarriles [] = []
+soloLosBarriles (c:cs) = barrilesDe c ++ soloLosBarriles cs
+
+barrilesDe::Componente->[Barril]
+barrilesDe (Almacen bs) = bs
+barrilesDe _ = []
