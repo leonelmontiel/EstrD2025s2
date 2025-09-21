@@ -372,10 +372,12 @@ cria3 = Cria "Daniela"
 
 exp0 = Explorador "Elias" territorios0 cria0 cria1
 exp1 = Explorador "Ari" territorios1 cria1 cria2
+exp2 = Explorador "Atilio" territorios1 exp1 exp0
 
 manada0 = M (Cazador "Guille" [] exp0 cria1 cria0)
 manada1 = M (Cazador "Leo" presas0 exp0 exp1 cria3)
 manada2 = M (Cazador "Messi" presas1 cria1 cria2 cria3)
+manada3 = M (Cazador "Pipi" presas0 exp1 exp0 exp2)
 
   -- 2)  dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
 buenaCaza::Manada->Bool
@@ -411,3 +413,24 @@ loboConMasPresas (tl:tls) =
 
 cantPresasDe::(Nombre, Int)->Int
 cantPresasDe (n,ps) = ps
+
+  -- 4) dado un territorio y una manada, devuelve los nombres de los exploradores que pasaron por dicho territorio.
+losQueExploraron::Territorio->Manada->[Nombre]
+losQueExploraron t (M lobos) = sinNombresRepetidos (nombresDeLosQueExploraron t lobos)
+
+nombresDeLosQueExploraron::Territorio->Lobo->[Nombre]
+nombresDeLosQueExploraron t (Explorador nom ts t1 t2) = agregarNombreSiExploro t ts nom ++ nombresDeLosQueExploraron t t1 ++ nombresDeLosQueExploraron t t2
+nombresDeLosQueExploraron t (Cazador _ _ t1 t2 t3) = nombresDeLosQueExploraron t t1 ++ nombresDeLosQueExploraron t t2 ++ nombresDeLosQueExploraron t t3
+nombresDeLosQueExploraron _ (Cria _) = []
+
+agregarNombreSiExploro::Territorio->[Territorio]->Nombre->[Nombre]
+agregarNombreSiExploro t ts nom =
+  if elem t ts
+  then [nom]
+  else []
+
+sinNombresRepetidos::[Nombre]->[Nombre]
+sinNombresRepetidos [] = []
+sinNombresRepetidos (x:xs) = if elem x xs
+  then xs
+  else x : sinNombresRepetidos xs
