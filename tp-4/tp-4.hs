@@ -373,8 +373,9 @@ cria3 = Cria "Daniela"
 exp0 = Explorador "Elias" territorios0 cria0 cria1
 exp1 = Explorador "Ari" territorios1 cria1 cria2
 
-manada0 = M (Cazador "Leo" presas0 exp0 exp1 cria3)
-manada1 = M (Cazador "Messi" presas1 cria1 cria2 cria3)
+manada0 = M (Cazador "Guille" [] exp0 cria1 cria0)
+manada1 = M (Cazador "Leo" presas0 exp0 exp1 cria3)
+manada2 = M (Cazador "Messi" presas1 cria1 cria2 cria3)
 
   -- 2)  dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
 buenaCaza::Manada->Bool
@@ -389,3 +390,24 @@ cantCrias::Lobo->Int
 cantCrias (Cria _) = 1
 cantCrias (Explorador _ _ l1 l2) = cantCrias l1 + cantCrias l2
 cantCrias (Cazador _ _ l1 l2 l3) = cantCrias l1 + cantCrias l2 + cantCrias l3
+
+  -- 3) dada una manada, devuelve el nombre del lobo con más presas cazadas, junto con su cantidad de presas. Nota: se considera que los exploradores y crías tienen cero presas cazadas, y que podrían formar parte del resultado si es que no existen cazadores con más de cero presas.
+elAlfa::Manada->(Nombre, Int)
+elAlfa (M lobos) = elLoboAlfa lobos
+
+elLoboAlfa::Lobo->(Nombre, Int)
+elLoboAlfa (Cria nom) = (nom, 0)
+elLoboAlfa (Explorador nom _ l1 l2) =
+  loboConMasPresas [(nom, 0), elLoboAlfa l1, elLoboAlfa l2]
+elLoboAlfa (Cazador nom ps l1 l2 l3) =
+  loboConMasPresas [(nom, length ps), elLoboAlfa l1, elLoboAlfa l2, elLoboAlfa l3]
+
+loboConMasPresas::[(Nombre, Int)]->(Nombre, Int)
+loboConMasPresas [tl] = tl
+loboConMasPresas (tl:tls) =
+  if cantPresasDe tl > cantPresasDe (loboConMasPresas tls)
+  then tl
+  else loboConMasPresas tls
+
+cantPresasDe::(Nombre, Int)->Int
+cantPresasDe (n,ps) = ps
