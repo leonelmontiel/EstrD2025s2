@@ -100,45 +100,39 @@ hayTesoroEn n (Cofre obj c) = if n == 0
 -- Precondicion: tiene que haber al menos un tesoro.
 
   -- 4)  Indica si hay al menos n tesoros en el camino
-alMenosNTesoros::Int->Camino->Bool
-alMenosNTesoros n c = cantTesorosDelCamino c >= n
+alMenosNTesoros :: Int -> Camino -> Bool
+alMenosNTesoros 0 _ = True                    
+alMenosNTesoros _ Fin = False                 
+alMenosNTesoros n (Nada c) = alMenosNTesoros n c
+alMenosNTesoros n (Cofre obs c) = 
+    let encontrados = length (losTesorosEn obs)
+    in if encontrados >= n 
+       then True
+       else alMenosNTesoros (n - encontrados) c
 
-cantTesorosDelCamino :: Camino -> Int 
-cantTesorosDelCamino  c  = sumarTesoros (objetosDeCamino c)
-
-sumarTesoros::[Objeto]->Int
-sumarTesoros [] = 0
-sumarTesoros (x:xs) = unoSi (esTesoro x) + sumarTesoros xs
-
-objetosDeCamino :: Camino -> [Objeto] 
-objetosDeCamino    (Cofre obs c) = obs ++ objetosDeCamino c 
-objetosDeCamino    (Nada c )     = objetosDeCamino c 
-objetosDeCamino    _               = []
+losTesorosEn::[Objeto]->[Objeto]
+losTesorosEn [] = []
+losTesorosEn (ob:obs) = if esTesoro ob
+                        then ob : losTesorosEn obs
+                        else losTesorosEn obs
 
   -- 5) Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están incluidos tanto 3 como 5 en el resultado.
 cantTesorosEntre :: Int -> Int -> Camino -> Int
-cantTesorosEntre 0 0 c = cantTesorosDelCamino c 
-cantTesorosEntre n m c = contarTesorosEnRango (m - n + 1) (quitarPrimerosNPasos n c)
--- Precondicion: Debe existir al menos un camino siguiente
+cantTesorosEntre i f c = contarEntre 0 i f c
 
-contarTesorosEnRango :: Int -> Camino -> Int
-contarTesorosEnRango 0 _ = 0
-contarTesorosEnRango _ Fin = 0
-contarTesorosEnRango pasos (Nada c) = contarTesorosEnRango (pasos - 1) c
-contarTesorosEnRango pasos (Cofre obs c) = sumarTesoros obs + contarTesorosEnRango (pasos - 1) c
--- Precondicion: no tiene
+contarEntre :: Int -> Int -> Int -> Camino -> Int
+contarEntre _ _ _ Fin = 0
+contarEntre pos i f (Nada c) = contarEntre (pos+1) i f c
+contarEntre pos i f (Cofre obs c) = sumarTesorosEnRango pos i f obs + contarEntre (pos+1) i f c
 
-quitarPrimerosNPasos::Int->Camino->Camino
-quitarPrimerosNPasos n c = if esMenorOIgualQueCero n
-                   then c
-                   else quitarPrimerosNPasos (n-1) (quitarPrimerPaso c)
--- Precondicion: Debe existir al menos un camino siguiente
+sumarTesorosEnRango::Int->Int->Int->[Objeto]->Int
+sumarTesorosEnRango pos i f obs =
+  if enRango pos i f 
+  then length (losTesorosEn obs)
+  else 0
 
-quitarPrimerPaso::Camino->Camino
-quitarPrimerPaso Fin = error "Debe existir al menos un camino siguiente"
-quitarPrimerPaso (Nada c) = c
-quitarPrimerPaso (Cofre _ c) = c
--- Precondicion: Debe existir al menos un camino siguiente
+enRango :: Int -> Int -> Int -> Bool
+enRango pos i f = pos >= i && pos <= f
 
 {-  2. Tipos arbóreos
  2.1. Árboles binarios
@@ -277,31 +271,25 @@ eval (Sum e1 e2)  = eval e1 + eval e2
 eval (Prod e1 e2) = eval e1 * eval e2
 eval (Neg e1 )    = eval e1 * (-1)
 
-  -- 2)  Dadaunaexpresión aritmética, la simpli ca según los siguientes criterios (descritos utilizando notación matemática convencional):
---------------------------------
+  -- 2)  Dada una expresión aritmética, la simplifica según los siguientes criterios (descritos utilizando notación matemática convencional):
 simplificar :: ExpA -> ExpA
 simplificar (Valor n)    = Valor n
 simplificar (Sum e1 e2)  = simplificarSum  (simplificar e1) (simplificar e2)
 simplificar (Prod e1 e2) = simplificarProd (simplificar e1) (simplificar e2)
 simplificar (Neg e1)     = simplificarNeg (simplificar e1)        
 
----------------------------------------
 simplificarSum :: ExpA -> ExpA -> ExpA
 simplificarSum (Valor 0 ) e         = e
 simplificarSum e          (Valor 0) = e
 simplificarSum e1         e2        = Sum e1 e2
 
----------------------------------------------
 simplificarProd :: ExpA -> ExpA -> ExpA
-simplificarProd (Valor 0)  e         = Valor 0
-simplificarProd  e         (Valor 0) = Valor 0
-
+simplificarProd (Valor 0)  _         = Valor 0
+simplificarProd  _         (Valor 0) = Valor 0
 simplificarProd  e         (Valor 1) = e
 simplificarProd (Valor 1)  e         = e
-
 simplificarProd e1        e2        = Prod e1 e2
 
----------------------------------------
 simplificarNeg :: ExpA -> ExpA
 simplificarNeg (Neg e) = e
 simplificarNeg e       = Neg e
