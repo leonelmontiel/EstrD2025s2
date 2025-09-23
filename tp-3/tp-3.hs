@@ -271,31 +271,25 @@ eval (Sum e1 e2)  = eval e1 + eval e2
 eval (Prod e1 e2) = eval e1 * eval e2
 eval (Neg e1 )    = eval e1 * (-1)
 
-  -- 2)  Dadaunaexpresión aritmética, la simpli ca según los siguientes criterios (descritos utilizando notación matemática convencional):
---------------------------------
+  -- 2)  Dada una expresión aritmética, la simplifica según los siguientes criterios (descritos utilizando notación matemática convencional):
 simplificar :: ExpA -> ExpA
 simplificar (Valor n)    = Valor n
 simplificar (Sum e1 e2)  = simplificarSum  (simplificar e1) (simplificar e2)
 simplificar (Prod e1 e2) = simplificarProd (simplificar e1) (simplificar e2)
 simplificar (Neg e1)     = simplificarNeg (simplificar e1)        
 
----------------------------------------
 simplificarSum :: ExpA -> ExpA -> ExpA
 simplificarSum (Valor 0 ) e         = e
 simplificarSum e          (Valor 0) = e
 simplificarSum e1         e2        = Sum e1 e2
 
----------------------------------------------
 simplificarProd :: ExpA -> ExpA -> ExpA
-simplificarProd (Valor 0)  e         = Valor 0
-simplificarProd  e         (Valor 0) = Valor 0
-
+simplificarProd (Valor 0)  _         = Valor 0
+simplificarProd  _         (Valor 0) = Valor 0
 simplificarProd  e         (Valor 1) = e
 simplificarProd (Valor 1)  e         = e
-
 simplificarProd e1        e2        = Prod e1 e2
 
----------------------------------------
 simplificarNeg :: ExpA -> ExpA
 simplificarNeg (Neg e) = e
 simplificarNeg e       = Neg e
