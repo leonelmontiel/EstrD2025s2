@@ -100,20 +100,21 @@ hayTesoroEn n (Cofre obj c) = if n == 0
 -- Precondicion: tiene que haber al menos un tesoro.
 
   -- 4)  Indica si hay al menos n tesoros en el camino
-alMenosNTesoros::Int->Camino->Bool
-alMenosNTesoros n c = cantTesorosDelCamino c >= n
+alMenosNTesoros :: Int -> Camino -> Bool
+alMenosNTesoros 0 _ = True                    
+alMenosNTesoros _ Fin = False                 
+alMenosNTesoros n (Nada c) = alMenosNTesoros n c
+alMenosNTesoros n (Cofre obs c) = 
+    let encontrados = length (losTesorosDe obs)
+    in if encontrados >= n 
+       then True
+       else alMenosNTesoros (n - encontrados) c
 
-cantTesorosDelCamino :: Camino -> Int 
-cantTesorosDelCamino  c  = sumarTesoros (objetosDeCamino c)
-
-sumarTesoros::[Objeto]->Int
-sumarTesoros [] = 0
-sumarTesoros (x:xs) = unoSi (esTesoro x) + sumarTesoros xs
-
-objetosDeCamino :: Camino -> [Objeto] 
-objetosDeCamino    (Cofre obs c) = obs ++ objetosDeCamino c 
-objetosDeCamino    (Nada c )     = objetosDeCamino c 
-objetosDeCamino    _               = []
+losTesorosDe::[Objeto]->[Objeto]
+losTesorosDe [] = []
+losTesorosDe (ob:obs) = if esTesoro ob
+                        then ob : losTesorosDe obs
+                        else losTesorosDe obs
 
   -- 5) Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están incluidos tanto 3 como 5 en el resultado.
 cantTesorosEntre :: Int -> Int -> Camino -> Int
@@ -125,8 +126,12 @@ contarTesorosEnRango :: Int -> Camino -> Int
 contarTesorosEnRango 0 _ = 0
 contarTesorosEnRango _ Fin = 0
 contarTesorosEnRango pasos (Nada c) = contarTesorosEnRango (pasos - 1) c
-contarTesorosEnRango pasos (Cofre obs c) = sumarTesoros obs + contarTesorosEnRango (pasos - 1) c
+contarTesorosEnRango pasos (Cofre obs c) = cantTesoros obs + contarTesorosEnRango (pasos - 1) c
 -- Precondicion: no tiene
+
+cantTesoros::[Objeto]->Int
+cantTesoros [] = 0
+cantTesoros (ob:obs) = unoSi (esTesoro ob) + cantTesoros obs
 
 quitarPrimerosNPasos::Int->Camino->Camino
 quitarPrimerosNPasos n c = if esMenorOIgualQueCero n
@@ -139,6 +144,14 @@ quitarPrimerPaso Fin = error "Debe existir al menos un camino siguiente"
 quitarPrimerPaso (Nada c) = c
 quitarPrimerPaso (Cofre _ c) = c
 -- Precondicion: Debe existir al menos un camino siguiente
+
+cantTesorosDelCamino :: Camino -> Int 
+cantTesorosDelCamino  c  = cantTesoros (objetosDeCamino c)
+
+objetosDeCamino :: Camino -> [Objeto] 
+objetosDeCamino    (Cofre obs c) = obs ++ objetosDeCamino c 
+objetosDeCamino    (Nada c )     = objetosDeCamino c 
+objetosDeCamino    _               = []
 
 {-  2. Tipos arbóreos
  2.1. Árboles binarios
