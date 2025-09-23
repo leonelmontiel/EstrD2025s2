@@ -374,10 +374,17 @@ exp0 = Explorador "Elias" territorios0 cria0 cria1
 exp1 = Explorador "Ari" territorios1 cria1 cria2
 exp2 = Explorador "Atilio" territorios1 exp1 exp0
 
-manada0 = M (Cazador "Guille" [] exp0 cria1 cria0)
-manada1 = M (Cazador "Leo" presas0 exp0 exp1 cria3)
-manada2 = M (Cazador "Messi" presas1 cria1 cria2 cria3)
-manada3 = M (Cazador "Pipi" presas0 exp1 exp0 exp2)
+caz0 = Cazador "Guille" [] exp0 cria1 cria0
+caz1 = Cazador "Leo" presas0 exp0 exp1 cria3
+caz2 = Cazador "Messi" presas1 cria1 cria2 cria3
+caz3 = Cazador "Pipi" presas0 exp1 exp0 exp2
+caz4 = Cazador "Jorge" presas0 caz1 caz2 caz3
+
+manada0 = M (caz0)
+manada1 = M (caz1)
+manada2 = M (caz2)
+manada3 = M (caz3)
+manada4 = M (caz4)
 
   -- 2)  dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
 buenaCaza::Manada->Bool
@@ -432,7 +439,7 @@ agregarNombreSiExploro t ts nom =
 sinNombresRepetidos::[Nombre]->[Nombre]
 sinNombresRepetidos [] = []
 sinNombresRepetidos (x:xs) = if elem x xs
-  then xs
+  then sinNombresRepetidos xs
   else x : sinNombresRepetidos xs
 
   -- 5) dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron dicho territorio. Los territorios no deben repetirse.
@@ -458,10 +465,31 @@ insertarNombreSiNoEsta nom noms t tns =
      then (t, noms) : tns
      else (t, nom:noms) : tns
 
--- Inserta (Territorio,Nombre) en la lista
 insertarTuplaTN :: Territorio -> Nombre -> [(Territorio,[Nombre])] -> [(Territorio,[Nombre])]
 insertarTuplaTN t nom [] = [(t, [nom])]
 insertarTuplaTN t nom ((t', noms):tnss) =
   if t == t'
     then insertarNombreSiNoEsta nom noms t' tnss
     else (t', noms) : insertarTuplaTN t nom tnss
+
+  -- 6) dado el nombre de un lobo y una manada, indica el nombre de todos los cazadores que tienen como subordinado al lobo dado (puede ser un subordinado directo, o el subordinado de un subordinado).Precondición: hay un lobo con dicho nombre y es único.
+cazadoresSuperioresDe::Nombre->Manada->[Nombre]
+cazadoresSuperioresDe nomSub (M lobos) = sinNombresRepetidos (obtenerCazadoresSuperiores nomSub lobos)
+
+obtenerCazadoresSuperiores::Nombre->Lobo->[Nombre]
+obtenerCazadoresSuperiores nomSub (Cria _) = []
+obtenerCazadoresSuperiores nomSub (Explorador _ _ l1 l2) = obtenerCazadoresSuperiores nomSub l1 ++ obtenerCazadoresSuperiores nomSub l2
+obtenerCazadoresSuperiores nomSub (Cazador nomSup _ l1 l2 l3) =
+  let subs = obtenerCazadoresSuperiores nomSub l1
+            ++ obtenerCazadoresSuperiores nomSub l2
+            ++ obtenerCazadoresSuperiores nomSub l3
+    in if contieneLobo nomSub (Cazador nomSup [] l1 l2 l3)
+          then nomSup : subs
+          else subs
+
+contieneLobo :: Nombre -> Lobo -> Bool
+contieneLobo nomSub (Cria nom) = nom == nomSub
+contieneLobo nomSub (Explorador nom _ l1 l2) =
+    nom == nomSub || contieneLobo nomSub l1 || contieneLobo nomSub l2
+contieneLobo nomSub (Cazador nom _ l1 l2 l3) =
+    nom == nomSub || contieneLobo nomSub l1 || contieneLobo nomSub l2 || contieneLobo nomSub l3
