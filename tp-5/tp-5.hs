@@ -1,3 +1,4 @@
+import Set
 
 {- Calculo de costos
   Especificar el costo operacional de las siguientes funciones: -}
@@ -32,6 +33,7 @@ pertenece n [] = False
 pertenece n (x:xs) = n == x || pertenece n xs
 {- Costo LINEAL O(n): siendo n el valor a encontrar y m la cantidad de elemento de la lista, n tiene un costo CONSTANTE al compararse con el primer elemento de la lista iterada pero m es LINEAL porque en el peor de los casos recorre todos los elementos. Por ende O(1*n) es O(n).-}
 
+{- lo comento porque sino rompe porque más abajo me toca implementar una función con el mismo nombre
 sinRepetidos :: Eq a => [a] -> [a]
 sinRepetidos [] = []
 sinRepetidos (x:xs) =
@@ -39,7 +41,7 @@ sinRepetidos (x:xs) =
     then sinRepetidos xs
     else x : sinRepetidos xs
 {- Costo CUADRÁTICO O(n^2): siendo n la cantidad de elementos de la lista que se pasa por parámetro, pertenece tiene un costo LINEAL al iterarse por cada elemento y sinRepetidos también tiene un costo LINEAL por la recursividad en cada elemento en cualquier caso del if, al hacer O(n*n) da como resulta O(n^2)
-lo cual implica un costo CUADRÁTICO. -}
+lo cual implica un costo CUADRÁTICO. -} -}
 
 -- equivalente a (++)
 append :: [a] -> [a] -> [a]
@@ -86,13 +88,47 @@ sacar n (x:xs) =
 ordenar :: Ord a => [a]-> [a]
 ordenar [] = []
 ordenar xs =
-let m = minimo xs
-in m : ordenar (sacar m xs)
+  let m = minimo xs
+  in m : ordenar (sacar m xs)
 {- Siendo n la longitud de xs, 'minimo' tiene un costo lineal, 'sacar' también y lo mismo con 'ordenar' porque se aplicar para todos los elementos de la lista. Además de O(1) por el 'cons'. Pero al repetir las primeras dos funciones lineales en cada paso de la recursión, hace que 'ordenar' sea CUADRÁTICA O(n^2) -}
 
+-----
+-- FUNCIONES AUXILIARES
+crearSet :: Set a
+crearSet = emptyS
 
+addElemsSet :: Eq a => [a] -> Set a -> Set a
+addElemsSet [] s = s
+addElemsSet (x:xs) s = addS x (addElemsSet xs s)
 
+s1 = crearSet
+s2 = addElemsSet [1,5,4] s1
 
+-- 2) 2. Como usuario del tipo abstracto Set implementar las siguientes funciones:
+losQuePertenecen :: Eq a => [a]-> Set a-> [a]
+-- Dados una lista y un conjunto, devuelve una lista con todos los elementos que pertenecen al conjunto.
+losQuePertenecen [] s = []
+losQuePertenecen (x:xs) s =
+  if belongs x s
+  then x : losQuePertenecen xs s
+  else losQuePertenecen xs s                               
+{- siendo n la cantidad de elementos de xs y m la cantidad de elementos de la lista en el Set:
+    * belongs --> O(m) porque recorre la lista interna del Set.
+    * cons    --> O(1)
+  La función recorre los n elementos de xs, y en cada paso ejecuta belongs O(m) y eventualmente un cons O(1). Por lo tanto, el costo total en el peor caso es O(n·m). -}
+
+sinRepetidos :: Eq a => [a]-> [a]
+-- Quita todos los elementos repetidos de la lista dada utilizando un conjunto como estructura auxiliar.
+sinRepetidos xs = setToList (setSinRepetidos xs emptyS)
+{- * setToList       --> O(1)
+   * setSinRepetidos --> O(n*m)
+   siendo n la cantidad de elementos de xs y m el tamaño del conjunto; O(1) + O(n*m) da como resultado que 'sinRepetidos' es O(n*m) -}
+
+setSinRepetidos :: Eq a => [a] -> Set a -> Set a
+setSinRepetidos [] s = s
+setSinRepetidos (x:xs) s = setSinRepetidos xs (addS x s)
+{- * addS    --> O(m)
+  siendo n la cantidad de elementos de la lista y m el tamaño del conjunto; por cada elemento se evalua en el Set si se debe agregar o no según la existencia, por eso esta funcion tiene un costo O(n*m) -}
 
 
 
