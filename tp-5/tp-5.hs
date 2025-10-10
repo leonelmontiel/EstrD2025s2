@@ -130,11 +130,19 @@ setSinRepetidos (x:xs) s = setSinRepetidos xs (addS x s)
 {- * addS    --> O(m)
   siendo n la cantidad de elementos de la lista y m el tamaño del conjunto; por cada elemento se evalua en el Set si se debe agregar o no según la existencia, por eso esta funcion tiene un costo O(n*m) -}
 
+unirTodos :: Eq a => Tree (Set a)-> Set a
+-- Dado un arbol de conjuntos devuelve un conjunto con la union de todos los conjuntos del arbol.
+unirTodos EmptyT = emptyS
+unirTodos (NodeT s t1 t2) = unionS s (unionS (unirTodos t1) (unirTodos t2))
+{- siendo n el número total de elementos en el árbol:
+    * Llamadas Recursivas --> La función recorre todos los nodos para visitar cada conjunto.
+    * Llamada a unionS --> O(N²). En cada nodo se invoca la función de unión, cuyo costo es cuadrático.
 
+  Como la función debe invocar repetidamente la costosa operación 'unionS' para combinar resultados cada vez más grandes, el costo total acumulado es cuadrático con respecto al número total de elementos, resultando en O(n²). -}
 
+data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
 
+t1 = NodeT emptyS (NodeT s2 EmptyT EmptyT) (NodeT (addS 10 s2) EmptyT (NodeT (addS (-5) s2) EmptyT EmptyT))
 
-
-
-
-
+-- 2.3) Implementar la variante del tipo abstracto Set que posee una lista y admite repetidos. En otras palabras, al agregar no va a chequear que si el elemento ya se encuentra en la lista, pero sí debe comportarse como Set ante el usuario (quitando los elementos repetidos al pedirlos, por ejemplo). Contrastar la e ciencia obtenida en esta implementación con la anterior.
+--import Set2

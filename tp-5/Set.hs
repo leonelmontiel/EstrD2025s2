@@ -6,7 +6,16 @@ data Set a = S [a] Int deriving Show
 {- INVARIANTES DE REPRESENTACIÓN: en T xs n
      * xs no tiene repetidos
      * si xs es vacía, n es 0
-     * si xs NO es vacía, n es la longitud de xs -}
+     * si xs NO es vacía, n es la longitud de xs 
+
+- INVÁLIDO:
+S [2, 2, 4] 3
+S [] 4
+S [2, 3, 4] 8
+- VÁLIDO:
+S [1, 2, 6] 3
+S [] 0
+-}
 
 emptyS :: Set a
 -- Crea un conjunto vacío.
@@ -34,7 +43,7 @@ sizeS (S _ n) = n
 removeS :: Eq a => a-> Set a-> Set a
 -- Borra un elemento del conjunto.
 removeS x (S xs n) = if elem x xs then S (removeElem x xs) (n-1) else S xs n
-{- la resta es O(1), pero 'elem' y 'emoveElem' son Lineale, por ende esta función tiene un costo O(n)  -}
+{- la resta es O(1), pero 'elem' y 'emoveElem' son Lineales, por ende esta función tiene un costo O(n)  -}
 
 removeElem :: Eq a => a -> [a] -> [a]
 removeElem _ [] = []
@@ -43,23 +52,13 @@ removeElem x (y:ys) = if x == y then ys else y : removeElem x ys
 
 unionS :: Eq a => Set a-> Set a-> Set a
 -- Dados dos conjuntos devuelve un conjunto con todos los elementos de ambos conjuntos.
-unionS (S xs _) s = addElemsInSet xs s
-{- * sinRepetidos --> O(n)
-   * length       --> O(n)
-   siendo n la cantidad de elementos de xs; O(n) + O(n) hace que 'unionS' sea también LINEAL.  -}
-
--- FUNCIÓN AUXILIAR
-addElemsInSet :: Eq a => [a] -> Set a -> Set a 
-addElemsInSet [] s = s
-addElemsInSet (x:xs) (S ys n) =
-    if elem x ys
-        then addElemsInSet xs (S ys n)
-        else addElemsInSet xs (S (x:ys) (n+1))
-{- siendo N la cantidad de elementos de la lista y m la del Set:
-   * elem --> O(m) porque recorre la lista interna del Set.
-   * cons --> O(1) insertando en m
-   * + --> O(1)
-  siendo m el tamaño del conjunto y N el tamaño de la lista, en cada paso se ejecuta elem O(m) y eventualmente cons y suma O(1). Como esto se repite N veces (una por cada elemento de la lista), el costo total es O(N·m). -}
+unionS (S xs _) (S ys _) =
+   let result = sinRepetidos(xs++ys)
+   in S result length(result)
+{- siendo n el número total de elementos en la lista concatenada, N la longitud de xs y M la de ys, (n = N + M):
+    * (++) y length --> O(n). Ambas son operaciones lineales que recorren las listas una vez.
+    * sinRepetidos --> O(n²). Es la operación dominante..
+  Como el costo cuadrático de 'sinRepetidos' crece mucho más rápido que los costos lineales, determina la eficiencia total de la función, resultando en O(n²). -}
 
 setToList :: Eq a => Set a-> [a]
 -- Dado un conjunto devuelve una lista con todos los elementos distintos del conjunto.
