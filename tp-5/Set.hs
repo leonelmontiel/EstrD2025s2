@@ -54,11 +54,15 @@ unionS :: Eq a => Set a-> Set a-> Set a
 -- Dados dos conjuntos devuelve un conjunto con todos los elementos de ambos conjuntos.
 unionS (S xs _) (S ys _) =
    let result = sinRepetidos(xs++ys)
-   in S result length(result)
+   in S result (length(result))
 {- siendo n el número total de elementos en la lista concatenada, N la longitud de xs y M la de ys, (n = N + M):
     * (++) y length --> O(n). Ambas son operaciones lineales que recorren las listas una vez.
     * sinRepetidos --> O(n²). Es la operación dominante..
   Como el costo cuadrático de 'sinRepetidos' crece mucho más rápido que los costos lineales, determina la eficiencia total de la función, resultando en O(n²). -}
+
+sinRepetidos :: Eq a => [a] -> [a]
+sinRepetidos [] = []
+sinRepetidos (x:xs) = if elem x xs then sinRepetidos xs else x : sinRepetidos xs
 
 setToList :: Eq a => Set a-> [a]
 -- Dado un conjunto devuelve una lista con todos los elementos distintos del conjunto.

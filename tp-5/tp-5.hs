@@ -1,4 +1,5 @@
 import Set
+import Queue
 
 {- Calculo de costos
   Especificar el costo operacional de las siguientes funciones: -}
@@ -146,3 +147,33 @@ t1 = NodeT emptyS (NodeT s2 EmptyT EmptyT) (NodeT (addS 10 s2) EmptyT (NodeT (ad
 
 -- 2.3) Implementar la variante del tipo abstracto Set que posee una lista y admite repetidos. En otras palabras, al agregar no va a chequear que si el elemento ya se encuentra en la lista, pero sí debe comportarse como Set ante el usuario (quitando los elementos repetidos al pedirlos, por ejemplo). Contrastar la e ciencia obtenida en esta implementación con la anterior.
 --import Set2
+
+-- 3.
+-- import Queue
+q0 = emptyQ
+q1 = enqueue 1 q0
+q2 = enqueue 5 q1
+q3 = enqueue 3 q2
+q4 = dequeue q3
+
+--  3. Como usuario del tipo abstracto Queue implementar las siguientes funciones:
+lengthQ :: Queue a-> Int
+-- Cuenta la cantidad de elementos de la cola.
+lengthQ q =
+  if isEmptyQ q 
+    then 0
+    else 1 + lengthQ (dequeue q)
+
+queueToList :: Queue a-> [a]
+-- Dada una cola devuelve la lista con los mismos elementos, donde el orden de la lista es el de la cola. Nota: chequear que los elementos queden en el orden correcto.
+queueToList q =
+  if isEmptyQ q 
+    then []
+    else firstQ q : queueToList (dequeue q)
+
+unionQ :: Queue a-> Queue a-> Queue a
+-- Inserta todos los elementos de la segunda cola en la primera
+unionQ q1 q2 =
+  if isEmptyQ q2
+    then q1
+    else unionQ (enqueue (firstQ q2) q1) (dequeue q2)
