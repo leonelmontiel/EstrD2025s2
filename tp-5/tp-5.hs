@@ -3,6 +3,7 @@
 import Queue
 --import Queue2
 import Stack
+-- import Stack2
 
 {- Calculo de costos
   Especificar el costo operacional de las siguientes funciones: -}

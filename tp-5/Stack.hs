@@ -44,14 +44,14 @@ top :: Stack a-> a
 -- Dada un pila devuelve el elemento del tope de la pila.
 -- Precondición: la pila debe contener elementos
 top (S [] _) = error "la pila no tiene elementos"
-top (S (x:xs) _) = x 
+top (S (x:_) _) = x 
 {- como solo retorna el primer elemento de la pila, su costo es CONSTANTE. -}
 
 pop :: Stack a-> Stack a
 -- Dada una pila devuelve la pila sin el primer elemento.
 -- Precondición: la pila debe contener elementos
 pop (S [] _) = error "la pila no tiene elementos"
-pop (S (x:xs) n) = S xs (n-1)
+pop (S (_:xs) n) = S xs (n-1)
 {- como solo retorna la cola de la lista, sin su primer elemento, su costo es CONSTANTE. -}
 
 lenS :: Stack a-> Int
