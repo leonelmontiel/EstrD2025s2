@@ -75,6 +75,10 @@ firstQ :: Queue a-> a
 -- Precondicion: debe existir al menos un elemento en la cola.
 firstQ (Q []) = error "la cola no tiene elementos"
 firstQ (Q (x:xs)) = if null xs then x else firstQ (Q xs)
+{- siendo n la cantidad de elementos de la cola
+  * null   --> O(1)
+  * firstQ --> en el peor de los casos, va a hacer un llamado recursivo por cada uno de los elementos de la cola, siendo así que esta función sea LINEAL.
+-}
 
 dequeue :: Queue a-> Queue a
 -- Dada una cola la devuelve sin su primer elemento.

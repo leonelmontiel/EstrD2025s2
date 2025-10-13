@@ -163,6 +163,11 @@ lengthQ q =
   if isEmptyQ q 
     then 0
     else 1 + lengthQ (dequeue q)
+{- siendo n la cantidad de elementos de la cola
+  * isEmptyQ --> O(1) en ambas versiones
+  * dequeue  --> O(1) en V1 y O(n) en V2
+  * (+)      --> O(1)
+  * lengthQ  --> la llamada recursiva se hace para cada uno de los elementos de la cola en el peor de los casos, por eso, para la v1 predomina el costo LINEAL pero para la versión 2 como en cada llamado dequeue es tiene un costo Linea, lengthQ pasaría a ser de orden CUADRÁTICO. -}
 
 queueToList :: Queue a-> [a]
 -- Dada una cola devuelve la lista con los mismos elementos, donde el orden de la lista es el de la cola. Nota: chequear que los elementos queden en el orden correcto.
@@ -170,6 +175,13 @@ queueToList q =
   if isEmptyQ q 
     then []
     else firstQ q : queueToList (dequeue q)
+{- siendo n la cantidad de elementos de la cola
+  * isEmptyQ    --> O(1) en ambas versiones
+  * dequeue     --> O(1) en V1 y O(n) en V2
+  * firstQ      --> O(1) en v1 y O(n) en v2
+  * (:)         --> O(1)
+  * queueToList --> la llamada recursiva se hace para n elementos de la cola siempre, por eso tiene un costo LINEAL para la v1 y CUADRÁTICO para la v2.
+ -}
 
 unionQ :: Queue a-> Queue a-> Queue a
 -- Inserta todos los elementos de la segunda cola en la primera
@@ -177,3 +189,10 @@ unionQ q1 q2 =
   if isEmptyQ q2
     then q1
     else unionQ (enqueue (firstQ q2) q1) (dequeue q2)
+{- siendo n la cantidad de elementos de la cola q2 y m la cantidad total de q1
+  * isEmptyQ --> O(1) en ambas versiones
+  * enqueue  --> O(n) en v1 y O(1) en v2
+  * firstQ   --> O(1) en v1 y O(n) en v2
+  * dequeue  --> O(1) en V1 y O(n) en V2
+  * unionQ   --> en el peor de los casos, se hace una llamada recursiva n veces para insertar el primer elemento de dicha cola en q1. Por tal motivo, para ambas versiones el costo es CUADRÁTICO, ya que para la v1 'unionQ' se recorren m elementos de q1 para agregar el primer elemento de q2 n-1 veces. Y para la v2 se recorre n veces en tres ocasiones; en la recursión, en 'firstQ' y en 'dequeue'.
+ -}
