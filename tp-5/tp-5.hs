@@ -1,5 +1,7 @@
 import Set
+--import Set2
 import Queue
+--import Queue2
 
 {- Calculo de costos
   Especificar el costo operacional de las siguientes funciones: -}
@@ -105,7 +107,9 @@ addElemsSet (x:xs) s = addS x (addElemsSet xs s)
 s1 = crearSet
 s2 = addElemsSet [1,5,4] s1
 
--- 2) 2. Como usuario del tipo abstracto Set implementar las siguientes funciones:
+{-  2. Set (conjunto)
+Un Set es un tipo abstracto de datos que consta de las siguientes operaciones: -}
+-- 2) Como usuario del tipo abstracto Set implementar las siguientes funciones:
 losQuePertenecen :: Eq a => [a]-> Set a-> [a]
 -- Dados una lista y un conjunto, devuelve una lista con todos los elementos que pertenecen al conjunto.
 losQuePertenecen [] s = []
@@ -146,10 +150,9 @@ data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
 t1 = NodeT emptyS (NodeT s2 EmptyT EmptyT) (NodeT (addS 10 s2) EmptyT (NodeT (addS (-5) s2) EmptyT EmptyT))
 
 -- 2.3) Implementar la variante del tipo abstracto Set que posee una lista y admite repetidos. En otras palabras, al agregar no va a chequear que si el elemento ya se encuentra en la lista, pero sí debe comportarse como Set ante el usuario (quitando los elementos repetidos al pedirlos, por ejemplo). Contrastar la e ciencia obtenida en esta implementación con la anterior.
---import Set2
 
--- 3.
--- import Queue
+{-  3. Queue (cola) 
+Una Queue es un tipo abstracto de datos de naturaleza FIFO (first in, first out). Esto significaque los elementos salen en el orden con el que entraron, es decir, el que se agrega primero es el primero en salir (como la cola de un banco).  -}
 q0 = emptyQ
 q1 = enqueue 1 q0
 q2 = enqueue 5 q1
@@ -196,3 +199,7 @@ unionQ q1 q2 =
   * dequeue  --> O(1) en V1 y O(n) en V2
   * unionQ   --> en el peor de los casos, se hace una llamada recursiva n veces para insertar el primer elemento de dicha cola en q1. Por tal motivo, para ambas versiones el costo es CUADRÁTICO, ya que para la v1 'unionQ' se recorren m elementos de q1 para agregar el primer elemento de q2 n-1 veces. Y para la v2 se recorre n veces en tres ocasiones; en la recursión, en 'firstQ' y en 'dequeue'.
  -}
+
+{- 4. Stack (pila)
+Una Stack es un tipo abstracto de datos de naturaleza LIFO (last in, first out). Esto significa que los últimos elementos agregados a la estructura son los primeros en salir (como en una pila de platos). -}
+
