@@ -1,7 +1,8 @@
-import Set
+--import Set
 --import Set2
 import Queue
 --import Queue2
+import Stack
 
 {- Calculo de costos
   Especificar el costo operacional de las siguientes funciones: -}
@@ -94,7 +95,7 @@ ordenar xs =
   let m = minimo xs
   in m : ordenar (sacar m xs)
 {- Siendo n la longitud de xs, 'minimo' tiene un costo lineal, 'sacar' también y lo mismo con 'ordenar' porque se aplicar para todos los elementos de la lista. Además de O(1) por el 'cons'. Pero al repetir las primeras dos funciones lineales en cada paso de la recursión, hace que 'ordenar' sea CUADRÁTICA O(n^2) -}
-
+{- COMENTO PARTE SET PARA QUE NO HAYA CONFLICTO CON STACK
 -----
 -- FUNCIONES AUXILIARES
 crearSet :: Set a
@@ -148,7 +149,7 @@ unirTodos (NodeT s t1 t2) = unionS s (unionS (unirTodos t1) (unirTodos t2))
 data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
 
 t1 = NodeT emptyS (NodeT s2 EmptyT EmptyT) (NodeT (addS 10 s2) EmptyT (NodeT (addS (-5) s2) EmptyT EmptyT))
-
+-}
 -- 2.3) Implementar la variante del tipo abstracto Set que posee una lista y admite repetidos. En otras palabras, al agregar no va a chequear que si el elemento ya se encuentra en la lista, pero sí debe comportarse como Set ante el usuario (quitando los elementos repetidos al pedirlos, por ejemplo). Contrastar la e ciencia obtenida en esta implementación con la anterior.
 
 {-  3. Queue (cola) 
@@ -203,3 +204,55 @@ unionQ q1 q2 =
 {- 4. Stack (pila)
 Una Stack es un tipo abstracto de datos de naturaleza LIFO (last in, first out). Esto significa que los últimos elementos agregados a la estructura son los primeros en salir (como en una pila de platos). -}
 
+st0 = emptyS
+st1 = push 3 st0
+st2 = push 2 st1
+st3 = push 1 st2
+st4 = pop st3
+
+-- 1. Como usuario del tipo abstracto Stack implementar las siguientes funciones:
+apilar :: [a]-> Stack a
+-- Dada una lista devuelve una pila sin alterar el orden de los elementos.
+apilar [] = emptyS
+apilar (x:xs) = push x (apilar xs)
+{- sea n la cantidad de elementos de la lista:
+  * push --> O(1)
+   se hace una recursión por n veces para insertar cada elemento de la lista, por eso 'apilar' es LINEAL. -}
+
+desapilar :: Stack a-> [a]
+-- Dada una pila devuelve una lista sin alterar el orden de los elementos.
+desapilar st = 
+  if isEmptyS st
+    then []
+    else top st : desapilar (pop st)
+{- siendo n la cantidad de elementos de la pila
+  * top --> O(1)
+  * pop --> O(1)
+  * cons --> O(1)
+  * desapilar --> se realiza una recursión n veces en la pila para ir agregar los elementos a una lista, por eso esta función es LINEAL. -}
+
+insertarEnPos :: Int-> a-> Stack a-> Stack a
+-- Dada una posicion válida en la stack y un elemento, ubica dicho elemento en dicha posición (se desapilan elementos hasta dicha posición y se inserta en ese lugar).
+-- Precondición: la posición tiene que estar dentro del rango de la pila
+insertarEnPos n x st =
+  if n > lenS st
+    then error "la posición dada sobrepasa la longitud de la pila"
+    else insertarElemEnPos n x st
+{- siendo n la cantidad de elementos de la pila y m la posición a insertar
+  * (>) --> O(1)
+  * lenS --> O(1)
+  * insertarElemEnPos --> O(n)
+  por ende 'insertarEnPos' toma el costo más grande que es LINEAL. -}
+
+insertarElemEnPos :: Int-> a-> Stack a-> Stack a
+insertarElemEnPos n x st =
+  if n == 0
+    then push x st
+    else push (top st) (insertarElemEnPos (n-1) x (pop st))
+{- siendo n la cantidad de elementos de la pila y m la posición a insertar
+  * (==) --> O(1)
+  * push --> O(1)
+  * top --> O(1)
+  * pop --> O(1)
+  * (-) --> O(1)
+  * insertarElemPos --> en el peor de los casos n==m y se hace una recursión esa cantidad de veces para insertar el elemento, además de ir insertando los que fueron desapilados para llegar a la posición, por eso esta función es LINEAL.  -}
