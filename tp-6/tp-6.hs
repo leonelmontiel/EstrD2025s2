@@ -54,6 +54,7 @@ getValues (k:ks) map = (lookupM k map) : (getValues ks map)
   * lookupM --> O(m)
   * getValues --> se hace la recursión obligadamente para obtener con lookupM todos los values de las n keys, por eso esta función es CUADRÁTICA. -}
 
+-- USAR CASE Y NO KEYS
 todasAsociadas :: Eq k => [k]-> Map k v-> Bool
 -- Propósito: indica si en el map se encuentran todas las claves dadas.
 todasAsociadas [] _ = False
