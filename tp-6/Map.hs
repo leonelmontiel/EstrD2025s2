@@ -2,7 +2,7 @@
 La interfaz del tipo abstracto Map es la siguiente:-}
 module Map
 
-(Map, emptyM, assocM, lookupM, deleteM, keys)
+(Map, emptyM, assocM, lookupM, deleteM, keys, assocM')
 where
 data Map k v = M [(k, v)] deriving Show
 {- INV. REP:
@@ -84,3 +84,14 @@ m1 = assocM 1 "leo" m0
 m2 = assocM 2 "elias" m1
 m3 = assocM 3 "leo" m2
 m4 = assocM 1 "montiel" m3
+
+----------------------
+-- Map como una lista de pares-clave valor con claves repetidas
+assocM' :: Eq k => k-> v-> Map k v-> Map k v
+-- Propósito: agrega una asociación clave-valor al map.
+assocM' k v (M xs) = M ((k,v):xs)
+
+m1' = assocM' 1 "leo" m0
+m2' = assocM' 2 "elias" m1
+m3' = assocM' 3 "leo" m2
+m4' = assocM' 1 "montiel" m3
