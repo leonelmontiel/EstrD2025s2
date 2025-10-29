@@ -138,9 +138,21 @@ incrementar (k:ks) map = let inc = incrementar ks map
   * (+) --> O(1)
   * incrementar --> en el peor de los casos se hace la recursión n veces para obtener el resto de los keys con sus valores incrementados, para luego recorrer el map nuevamente para asociar la key actual con su incremento, por eso esta función es CUADRÁTICA. -}
 
---mergeMaps:: Eq k => Map k v-> Map k v-> Map k v
+mergeMaps:: Eq k => Map k v-> Map k v-> Map k v
 -- Propósito: dado dos maps se agregan las claves y valores del primer map en el segundo. Si una clave del primero existe en el segundo, es reemplazada por la del primero.
 -- Indicar los ordenes de complejidad en peor caso de cada función implementada, justi cando las respuestas.
+mergeMaps map1 map2 = insertarTodos (mapToList map1) map2
+{- siendo n la cantidad de elementos del map1 y m la del map2:
+  * insertarTodos --> O(n^2)
+  * mapToList --> O(n^2)
+  como se llaman a esas dos funciones en momentos diferentes, esta función también es de costo CUADRÁTICO. -}
+
+insertarTodos::Eq k => [(k,v)] -> Map k v -> Map k v
+insertarTodos [] map = map
+insertarTodos ((k,v) : kvs) map = assocM k v (insertarTodos kvs map)
+{- siendo n la cantidad de pares de la lista:
+  * assocM --> O(n)
+  * insertarTodos --> se hace la recursión para los n elementos de la lista a insertar en el map, recorriendolo para verificar si existe la clave, por eso es CUADRÁTICO. -}
 
 fromJust :: Maybe v -> v
 -- Precondición: no puede ser Nothing
