@@ -45,13 +45,22 @@ aparicionesDe x ((e,a) : eas) =
   * (==) --> O(1)
   * aparicionesDe --> en el peor caso, se recorre n veces hasta encontrar o no el elemento para retornar sus apariciones, por eso es LINEAL. -}
 
-unionMS :: Ord a => MultiSet a-> MultiSet a-> MultiSet a -- (opcional)
+unionMS :: Ord a => MultiSet a-> MultiSet a-> MultiSet a
 --Propósito: dados dos multiconjuntos devuelve un multiconjunto con todos los elementos de ambos multiconjuntos.
-unionMS (MS []) ms = ms
-unionMS (MS ((e,a) : eas)) ms =
-    if a > 0
-        then addMS e (unionMS (MS ((e,(a-1)) : eas)) ms)
-        else unionMS (MS eas) ms
+unionMS (MS eas1) (MS eas2) = MS (unirElementos eas1 eas2)
+
+unirElementos::Ord a => [(a,Int)] -> [(a,Int)] -> [(a,Int)]
+unirElementos [] eas2 = eas2
+unirElementos ((e1,a1) : eas1) eas2 =
+    let eas2' = agregarConConteo e1 a1 eas2
+    in unirElementos eas1 eas2'
+
+agregarConConteo :: Ord a => a -> Int -> [(a, Int)] -> [(a, Int)]
+agregarConConteo e a [] = [(e, a)]
+agregarConConteo e a ((e', a') : eas') =
+    if e == e'
+        then (e, a + a') : eas'
+        else (e', a') : agregarConConteo e a eas'
 
 --intersectionMS :: Ord a => MultiSet a-> MultiSet a-> MultiSet a (opcional)
 --Propósito: dados dos multiconjuntos devuelve el multiconjunto de elementos que ambos multiconjuntos tienen en común.
