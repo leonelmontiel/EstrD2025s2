@@ -4,7 +4,7 @@ Ejercicio 6
 UnMultiSet (multiconjunto) es un tipo abstracto de datos similar a un Set (conjunto). A diferencia del último, cada elemento posee una cantidad de apariciones, que llamaremos ocurrencias del elemento en el multiset. Su interfaz es la siguiente:
 -}
 module MultiSet
-(MultiSet, emptyMS, addMS)--, ocurrencesMS, unionMS, intersectionMS, multiSetToList)
+(MultiSet, emptyMS, addMS, ocurrencesMS, unionMS, intersectionMS, multiSetToList)
 where
 data MultiSet a = MS [(a, Int)] deriving Show
                     -- a --> elemento | Int --> apariciones
