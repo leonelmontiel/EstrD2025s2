@@ -82,8 +82,10 @@ ms0 = MS [] :: MultiSet String
 ms1 = MS [("leo",1),("elias",1)]
 ms2 = MS [("montiel",1), ("elias",2)]
 
---multiSetToList :: MultiSet a-> [(a, Int)]
+multiSetToList :: MultiSet a-> [(a, Int)]
 --Propósito: dado un multiconjunto devuelve una lista con todos los elementos del conjunto y su cantidad de ocurrencias
+multiSetToList (MS []) = []
+multiSetToList (MS eas) = eas
 
 ms0 = emptyMS
 ms1 = addMS "leo" ms0
