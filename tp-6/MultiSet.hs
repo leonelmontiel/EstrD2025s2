@@ -62,8 +62,26 @@ agregarConConteo e a ((e', a') : eas') =
         then (e, a + a') : eas'
         else (e', a') : agregarConConteo e a eas'
 
---intersectionMS :: Ord a => MultiSet a-> MultiSet a-> MultiSet a (opcional)
+intersectionMS :: Ord a => MultiSet a-> MultiSet a-> MultiSet a (opcional)
 --Propósito: dados dos multiconjuntos devuelve el multiconjunto de elementos que ambos multiconjuntos tienen en común.
+intersectionMS (MS eas1) (MS eas2) = MS (intersectar eas1 eas2)
+
+intersectar::Ord a => [(a,Int)] -> [(a,Int)] -> [(a,Int)]
+intersectar [] eas2 = []
+intersectar (ea : eas1) eas2 = 
+  intersectadoEn ea eas2 (intersectar eas1 eas2)
+
+intersectadoEn::Ord a => (a,Int) -> [(a,Int)] -> [(a,Int)] -> [(a,Int)]
+intersectadoEn _ [] inters = inters
+intersectadoEn (e,a) ((e1,a1) : eas) inters =
+  if e==e1
+    then (e, min a a1) : inters
+    else intersectadoEn (e,a) eas inters
+    
+ms0 = MS [] :: MultiSet String
+ms1 = MS [("leo",1),("elias",1)]
+ms2 = MS [("montiel",1), ("elias",2)]
+
 --multiSetToList :: MultiSet a-> [(a, Int)]
 --Propósito: dado un multiconjunto devuelve una lista con todos los elementos del conjunto y su cantidad de ocurrencias
 
