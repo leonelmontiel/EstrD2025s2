@@ -53,11 +53,13 @@ buscarM k ((x,y) : xs) =
 
 deleteM :: Eq k => k-> Map k v-> Map k v
 -- Propósito: borra una asociación dada una clave.
+-- Precondición: la clave debe existir en el map.
 deleteM k (M xs) = M (borrarM k xs)
 -- siendo borrarM O(n), entonces esta función también es LINEAL.
 
 borrarM::Eq k => k -> [(k,v)] -> [(k,v)]
-borrarM _ [] = []
+-- Precondición: la clave debe existir en la lista de pares.
+borrarM _ [] = error "la clave buscada no existe en las asociaciones."
 borrarM k ((x,y) : xs) = 
     if k == x
         then xs
