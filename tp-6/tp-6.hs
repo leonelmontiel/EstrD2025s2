@@ -4,6 +4,7 @@ OBSERVACIÓN: el nombre heapSort se debe a una implementación particular de las
 
 import PriorityQueue
 import Map
+import MultiSet
 
 heapSort::Ord a => [a] -> [a]
 heapSort [] = []
@@ -164,3 +165,15 @@ m1 = assocM "leo" (1 :: Int) m0
 m2 = assocM "elias" (2 :: Int) m1
 m3 = assocM "leo" (3 :: Int) m2
 m4 = assocM "montiel" (3 :: Int) m3
+
+-----------------------
+{-
+Reimplementar como usuario de MultiSet la función ocurrencias de ejercicios anteriores, que dado un string cuenta la cantidad de ocurrencias de cada caracter en el string. En este caso el resultado será un multiconjunto de caracteres.
+ -}
+ocurrencias::Ord a => [a] ->  MultiSet a
+ocurrencias [] = emptyMS
+ocurrencias (c:cs) = addMS c (ocurrencias cs)
+{- siendo n la cantidad de caracteres del string:
+  * emptyMS --> O(1)
+  * addMS --> O(n)
+  * ocurrencias --> cada n caracteres se hace la recursión para contar las ocurrencias y agregar el par con el elemento en el MultiSet, por eso esta función es CUADRÁTICA. -}
