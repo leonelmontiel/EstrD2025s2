@@ -1,5 +1,7 @@
 #include <iostream>
 #include "Par.h"
+#include "Ejercicio4.h"
+#include "Fraccion.h"
 using namespace std;
 
  /* Precondicion: c1 < c2
@@ -74,15 +76,11 @@ ft0      |  2    5  |
  
  */
 
- int main() {
-    Par par = consPar(5, 6);
-    cout << "x = " << fst(par) << endl;
-    cout << "y = " << snd(par) << endl;
-    cout << "El máximo entre x e y es = " << maxDelPar(par) << endl;
-    par = swap(par);
-    cout << "Luego del intercambio, ahora x es " << fst(par) << " e y es " << snd(par) << endl;
-    par = divisionYResto(5, 6);
-    cout << "Nuevo par en donde la primera componente es la división = " << fst(par) << " y la segunda es su resto = " << snd(par) << endl;
+int main() {
+    Fraccion f1 = consFraccion(5,6);
+    Fraccion f2 = consFraccion(5,3);
+    Fraccion f = sumF(f1, f2);
+    cout << f.numerador << "/" << f.denominador << endl;
     return 0;
 }
  
